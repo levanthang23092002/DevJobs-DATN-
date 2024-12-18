@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AuthApi from "../../components/api/auth/auth";
+import AuthApi from "../../api/auth/auth";
 import uploadImage from "../../assets/Js/UploadImage";
 
 const position = await AuthApi.getAllAuth("/all-position");

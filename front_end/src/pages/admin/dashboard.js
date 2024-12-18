@@ -10,6 +10,15 @@ import { IoMdNotifications } from "react-icons/io";
 import { FaUser } from "react-icons/fa6";
 import { ImOffice } from "react-icons/im";
 import { MdPostAdd } from "react-icons/md";
+import AdminApi from "../../api/auth/admin";
+
+const totalUser = await AdminApi.getTotal("total-user");
+const totalCompany = await AdminApi.getTotal("total-company");
+const totalPost = await AdminApi.getTotal("total-post");
+
+const totalUsers = totalUser.totall;
+const totalCompanys = totalCompany.totall;
+const totalPosts = totalPost.totall;
 
 const Dashboard = () => {
   return (
@@ -19,7 +28,7 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="flex-grow bg-custom p-6 ml-64">
-        <header className="flex  items-center justify-between px-6 py-2 rounded-md mb-6">
+        <header className="flex items-center justify-between px-6 py-2 rounded-md mb-6">
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           <div className="flex items-center text-white text-xl justify-between px-4 py-2 rounded-md">
             <IoMdNotifications />
@@ -37,37 +46,34 @@ const Dashboard = () => {
           <div className="bg-custom-item shadow rounded-md p-6">
             <div className="flex items-center text-gray-300 text-xl mb-2">
               <FaUser className="text-xl" />
-              <h2 className="pl-2 my-auto text-sm font-bold"> Số ưng Viên</h2>
+              <h2 className="pl-2 my-auto text-sm font-bold">Số Ứng Viên</h2>
             </div>
-
             <p className="text-gray-600 text-4xl font-semibold text-white">
-              1,245
+              {totalUsers}
             </p>
           </div>
           <div className="bg-custom-item shadow rounded-md p-6">
             <div className="flex items-center text-gray-300 text-xl mb-2">
               <ImOffice className="text-xl" />
-              <h2 className="pl-2 my-auto text-sm font-bold">Số Danh Nghiêp</h2>
+              <h2 className="pl-2 my-auto text-sm font-bold">
+                Số Doanh Nghiệp
+              </h2>
             </div>
-
             <p className="text-gray-600 text-4xl font-semibold text-white">
-              1,245
+              {totalCompanys}
             </p>
           </div>
           <div className="bg-custom-item shadow rounded-md p-6">
             <div className="flex items-center text-gray-300 text-xl mb-2">
               <MdPostAdd className="text-xl" />
-              <h2 className="pl-2 my-auto text-sm font-bold">
-                Số bài ứng tuyển
-              </h2>
+              <h2 className="pl-2 my-auto text-sm font-bold">Số Bài Đăng</h2>
             </div>
-
             <p className="text-gray-600 text-4xl font-semibold text-white">
-              1,245
+              {totalPosts}
             </p>
           </div>
         </div>
-        <div className="flex h-96 " id="Dashboard">
+        <div className="flex h-96" id="Dashboard">
           <ProvinceManagement />
           <PositionManager />
         </div>
@@ -77,42 +83,12 @@ const Dashboard = () => {
         <div id="Business">
           <BusinessManagement />
         </div>
-
         <div id="Post">
           <PostManagement />
         </div>
         <div id="Sitting">
           <Profile />
         </div>
-        {/* <div className="bg-white shadow rounded-md p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr>
-                <th className="border-b py-2 px-4">User</th>
-                <th className="border-b py-2 px-4">Action</th>
-                <th className="border-b py-2 px-4">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border-b py-2 px-4">Jane Doe</td>
-                <td className="border-b py-2 px-4">Logged in</td>
-                <td className="border-b py-2 px-4">2024-12-01</td>
-              </tr>
-              <tr>
-                <td className="border-b py-2 px-4">John Smith</td>
-                <td className="border-b py-2 px-4">Updated profile</td>
-                <td className="border-b py-2 px-4">2024-12-01</td>
-              </tr>
-              <tr>
-                <td className="border-b py-2 px-4">Alice Brown</td>
-                <td className="border-b py-2 px-4">Added a comment</td>
-                <td className="border-b py-2 px-4">2024-12-01</td>
-              </tr>
-            </tbody>
-          </table>
-        </div> */}
       </div>
     </div>
   );

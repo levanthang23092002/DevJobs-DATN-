@@ -20,6 +20,7 @@ model LOAITAIKHOAN {
   idLoaiTK  Int         @id @default(autoincrement())
   quyen     String
   moTa      String?
+  trangThai Int         @default(2)
   nguoiDung NGUOIDUNG[]
   congTy    CONGTY[]
   Admin     Admin[]
@@ -59,12 +60,14 @@ model NGUOIDUNG {
 model VITRIUNGTUYEN {
   idViTri   Int         @id @default(autoincrement())
   tenViTri  String
+  trangThai Int         @default(2)
   nguoiDung NGUOIDUNG[]
 }
 
 model TINHTHANH {
   idTinhThanh  Int         @id @default(autoincrement())
   tenTinhThanh String
+  trangThai    Int         @default(2)
   nguoiDung    NGUOIDUNG[]
   baiDang      BAIDANG[]
 }
@@ -73,6 +76,7 @@ model CapDo {
   idCapDo   Int         @id @default(autoincrement())
   tenCapDo  String
   moTa      String?
+  trangThai Int         @default(2)
   nguoiDung NGUOIDUNG[]
 }
 
@@ -83,6 +87,7 @@ model HOCVAN {
   nganhHoc    String
   diem        Float?
   idNguoiDung Int
+  
 
   nguoiDung NGUOIDUNG @relation(fields: [idNguoiDung], references: [idNguoiDung])
 }
@@ -218,14 +223,14 @@ model CONGTY {
 }
 
 model Admin {
-  id         Int       @id @default(autoincrement()) 
+  id         Int       @id @default(autoincrement())
   idLoaiTK   Int?
-  email      String    @unique 
-  matKhau    String 
-  ten        String 
-  sDT        String? 
-  ngaySinh   DateTime? 
-  anhDaiDien String? 
+  email      String    @unique
+  matKhau    String
+  ten        String
+  sDT        String?
+  ngaySinh   DateTime?
+  anhDaiDien String?
 
   loaiTaiKhoan LOAITAIKHOAN? @relation(fields: [idLoaiTK], references: [idLoaiTK])
 }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import uploadImage from "../../assets/Js/UploadImage";
-import AuthApi from "../../components/api/auth/auth";
+import AuthApi from "../../api/auth/auth";
 
 const RegisterCompany = () => {
   const [formData, setFormData] = useState({

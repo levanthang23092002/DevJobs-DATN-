@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
-import AuthApi from "../../components/api/auth/auth";
+import AuthApi from "../../api/auth/auth";
 
 const LoginEmployer = () => {
   const [formData, setFormData] = useState({
@@ -19,17 +19,18 @@ const LoginEmployer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await AuthApi.auth(formData, "/login-candidate").then((response) => {
-        if (response.status < 300) {
-          const token = response.data.token;
-          axios.defaults.headers.common["Authorization"] = token;
-          sessionStorage.setItem("data", JSON.stringify(response.data.data));
-          setTimeout(() => {
-            window.location.href = " http://localhost:3000/";
-          
-          }, 3000);
+      await AuthApi.auth(formData, "/login-candidate").then(
+        async (response) => {
+          if (response.status < 300) {
+            const token = `Bearer ${response.data.token}`;
+            await sessionStorage.setItem("token", token);
+            sessionStorage.setItem("data", JSON.stringify(response.data.data));
+            setTimeout(() => {
+              window.location.href = " http://localhost:3000/";
+            }, 3000);
+          }
         }
-      });
+      );
     } catch (error) {
       console.log(error.response?.data || "An error occurred");
     }

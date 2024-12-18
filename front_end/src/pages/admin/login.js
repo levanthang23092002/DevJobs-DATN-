@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import AuthApi from "../../components/api/auth/auth";
+import AuthApi from "../../api/auth/auth";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
@@ -24,11 +24,10 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await AuthApi.auth(formData, "/login-admin").then((response) => {
+      await AuthApi.auth(formData, "/login-admin").then(async (response) => {
         if (response.status < 300) {
-          const token = response.data.token;
-          axios.defaults.headers.common["Authorization"] = token;
-          sessionStorage.setItem("data", JSON.stringify(response.data.data));
+          const token = `Bearer ${response.data.token}`;
+          await sessionStorage.setItem("token", token);
           setTimeout(() => {
             window.location.href = " http://localhost:3000/dashboard";
           }, 3000);
