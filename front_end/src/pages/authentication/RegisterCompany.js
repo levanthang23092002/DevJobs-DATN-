@@ -1,25 +1,31 @@
 import React, { useState } from "react";
 
+import uploadImage from "../../assets/Js/UploadImage";
+import AuthApi from "../../components/api/auth/auth";
+
 const RegisterCompany = () => {
   const [formData, setFormData] = useState({
     tenCongTy: "",
     diaChi: "",
     email: "",
-    sdt: "",
+    sDT: "",
     linkWeb: "",
     nganhNghe: "",
     soLuongNhanVien: "",
-    logo: null,
-    trangThai: "Hoạt động", // Default value
+    logo: "",
     ngayThanhLap: "",
+    idLoaiTK: 2,
     moTa: "",
-    idLoaiTaiKhoan: "",
     matKhau: "",
-    ngayTao: new Date().toISOString().slice(0, 10), // Default today's date
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData({
       ...formData,
       [name]: value,
@@ -33,9 +39,34 @@ const RegisterCompany = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Thông tin doanh nghiệp:", formData);
+    if (formData.logo !== null && formData.logo !== "") {
+      const url = await uploadImage(formData.logo);
+      formData.logo = url;
+    }
+
+    if (formData.ngayThanhLap !== null && formData.ngayThanhLap !== "") {
+      formData.ngayThanhLap = new Date(formData.ngayThanhLap);
+    } else {
+      formData.ngayThanhLap = new Date();
+    }
+
+    if (formData.soLuongNhanVien !== null && formData.soLuongNhanVien !== "") {
+      formData.soLuongNhanVien = parseInt(formData.soLuongNhanVien, 10);
+    } else {
+      formData.soLuongNhanVien = 0;
+    }
+    try {
+      const data = await AuthApi.auth(formData, "/register-company");
+      if (data.status < 300) {
+        setTimeout(() => {
+          window.location.href = " http://localhost:3000/login";
+        }, 5000);
+      }
+    } catch (error) {
+      console.log(error.response?.data || "An error occurred");
+    }
   };
 
   return (
@@ -43,8 +74,8 @@ const RegisterCompany = () => {
       <div className="flex justify-center h-screen items-center bg-black text-white w-1/2 pt-2">
         <div className="text-center">
           <div className="flex items-center justify-center mb-4">
-          <div className="bg-color-item w-6 h-8 mr-2"></div>
-          <h1 className="text-3xl color-item font-bold">D</h1>
+            <div className="bg-color-item w-6 h-8 mr-2"></div>
+            <h1 className="text-3xl color-item font-bold">D</h1>
           </div>
           <h2 className="text-3xl font-bold mb-4">
             Chào mừng đến với cộng đồng DevJobs
@@ -52,7 +83,10 @@ const RegisterCompany = () => {
           <p className="text-gray-400 mb-8">
             Nơi quy tụ hàng ngàn lập trình viên trên khắp Việt Nam
           </p>
-          <a href="/" className="text-green-400 font-semibold hover:no-underline ">
+          <a
+            href="/"
+            className="text-green-400 font-semibold hover:no-underline "
+          >
             Wellcome
           </a>
         </div>
@@ -116,21 +150,35 @@ const RegisterCompany = () => {
               />
             </div>
             <div>
-              <label
-                htmlFor="matKhau"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Mật Khẩu
-              </label>
-              <input
-                type="password"
-                id="matKhau"
-                name="matKhau"
-                value={formData.matKhau}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                required
-              />
+              <div className="flex-1">
+                <label
+                  htmlFor="matKhau"
+                  className="block text-gray-700 font-medium"
+                >
+                  Mật Khẩu
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="matKhau"
+                    name="matKhau"
+                    value={formData.matKhau}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:ring-2 focus:ring-green-500"
+                    placeholder="Nhập mật khẩu"
+                    required
+                    minLength={8}
+                    maxLength={100}
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute right-3 top-2.5 text-gray-600 focus:outline-none"
+                  >
+                    {showPassword ? "Ẩn" : "Hiển Thị"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <div>
@@ -179,6 +227,7 @@ const RegisterCompany = () => {
                 id="soLuongNhanVien"
                 name="soLuongNhanVien"
                 value={formData.soLuongNhanVien}
+                required
                 onChange={handleChange}
                 className=" w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
               />
@@ -187,19 +236,18 @@ const RegisterCompany = () => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label
-                htmlFor="sdt"
+                htmlFor="sDT"
                 className="block text-sm font-medium text-gray-700"
               >
                 Số Điện Thoại
               </label>
               <input
-                type="text"
-                id="sdt"
-                name="sdt"
-                value={formData.sdt}
+                type="tel"
+                id="sDT"
+                name="sDT"
+                value={formData.sDT}
                 onChange={handleChange}
                 className=" w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                required
               />
             </div>
             <div>
@@ -215,6 +263,7 @@ const RegisterCompany = () => {
                 name="ngayThanhLap"
                 value={formData.ngayThanhLap}
                 onChange={handleChange}
+                required
                 className=" w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
               />
             </div>

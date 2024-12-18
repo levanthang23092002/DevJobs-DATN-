@@ -1,34 +1,29 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import AuthApi from "../../components/api/auth/auth";
+import uploadImage from "../../assets/Js/UploadImage";
 
-const positions = [
-  { id: 1, name: "Kỹ sư phần mềm" },
-  { id: 2, name: "Nhân viên kinh doanh" },
-  { id: 3, name: "Quản lý dự án" },
-];
+const position = await AuthApi.getAllAuth("/all-position");
+const province = await AuthApi.getAllAuth("/all-city");
+const level = await AuthApi.getAllAuth("/all-level");
 
-const provinces = [
-  { id: 1, name: "Hà Nội" },
-  { id: 2, name: "TP. Hồ Chí Minh" },
-  { id: 3, name: "Đà Nẵng" },
-];
+const positions = position;
+const provinces = province;
+const levels = level;
 
 const RegisterCandidate = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     ten: "",
     ngaySinh: "",
-    sdt: "",
+    sdt: "+84",
     diaChi: "",
     email: "",
     matKhau: "",
-    id_vitri: "",
-    vitri: "",
+    idViTri: "",
     luongBatDau: "",
     luongKetThuc: "",
-    trangThai: "",
     anhDaiDien: "",
-    idtinhThanh: "",
+    idTinhThanh: "",
+    idCapDo: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => {
@@ -37,29 +32,73 @@ const RegisterCandidate = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const positions = [
-      { id: 1, name: "Kỹ sư phần mềm" },
-      { id: 2, name: "Nhân viên kinh doanh" },
-      { id: 3, name: "Quản lý dự án" },
-    ];
-    if (name === "id_vitri") {
-      var vitri = "vitri";
-      const position = positions.find((position) => position.id == value);
 
-      setFormData({ ...formData, [name]: value, [vitri]: position.name });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/register-CV", { state: formData });
+
+    try {
+      if (formData.anhDaiDien !== null && formData.anhDaiDien !== "") {
+        const url = await uploadImage(formData.anhDaiDien);
+        formData.anhDaiDien = url;
+      }
+      if (formData.idCapDo !== null && formData.idCapDo !== "") {
+        formData.idCapDo = parseInt(formData.idCapDo);
+      } else {
+        formData.idCapDo = 1;
+      }
+      if (formData.idTinhThanh !== null && formData.idTinhThanh !== "") {
+        formData.idTinhThanh = parseInt(formData.idTinhThanh);
+      } else {
+        formData.idTinhThanh = 1;
+      }
+
+      if (formData.idViTri !== null && formData.idViTri !== "") {
+        formData.idViTri = parseInt(formData.idViTri);
+      } else {
+        formData.idViTri = 1;
+      }
+
+      if (formData.luongBatDau !== null && formData.luongBatDau !== "") {
+        formData.luongBatDau = parseFloat(formData.luongBatDau);
+      } else {
+        formData.luongBatDau = 1;
+      }
+      if (formData.luongKetThuc !== null && formData.luongKetThuc !== "") {
+        formData.luongKetThuc = parseFloat(formData.luongKetThuc);
+      } else {
+        formData.luongKetThuc = 1;
+      }
+
+      if (formData.ngaySinh !== null && formData.ngaySinh !== "") {
+        formData.ngaySinh = new Date(formData.ngaySinh);
+      } else {
+        formData.ngaySinh = new Date();
+      }
+      console.log(formData);
+      const data = await AuthApi.auth(formData, "/register-candidate");
+      if (data.status < 300) {
+        setTimeout(() => {
+          window.location.href = " http://localhost:3000/login";
+        }, 5000);
+      }
+    } catch (error) {
+      console.log(error.response?.data || "An error occurred");
+    }
+
+    // navigate("/register-CV", { state: formData });
+  };
+  const handleFileChange = (e) => {
+    setFormData({
+      ...formData,
+      anhDaiDien: e.target.files[0],
+    });
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen">
-      {/* Left Section */}
+    <div className="flex flex-col md:flex-row ">
       <div className="flex flex-col justify-center items-center bg-black text-white w-full md:w-1/2 pt-2">
         <div className="text-center">
           <div className="flex items-center justify-center mb-4">
@@ -72,7 +111,10 @@ const RegisterCandidate = () => {
           <p className="text-gray-400 mb-8">
             Nơi quy tụ hàng ngàn lập trình viên trên khắp Việt Nam
           </p>
-          <a href="/" className="text-green-400 font-semibold hover:no-underline ">
+          <a
+            href="/"
+            className="text-green-400 font-semibold hover:no-underline "
+          >
             Wellcome
           </a>
         </div>
@@ -83,7 +125,6 @@ const RegisterCandidate = () => {
         </h2>
         <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-2xl">
           <form onSubmit={handleSubmit}>
-            {/* Tên */}
             <div className="mb-3">
               <label htmlFor="ten" className="block text-gray-700 font-medium">
                 Tên
@@ -135,6 +176,8 @@ const RegisterCandidate = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:ring-2 focus:ring-green-500"
                     placeholder="Nhập mật khẩu"
                     required
+                    minLength={8}
+                    maxLength={100}
                   />
                   <button
                     type="button"
@@ -146,7 +189,7 @@ const RegisterCandidate = () => {
                 </div>
               </div>
             </div>
-            {/* Địa chỉ */}
+
             <div className="mb-3">
               <label
                 htmlFor="diaChi"
@@ -166,7 +209,6 @@ const RegisterCandidate = () => {
               />
             </div>
             <div className="flex gap-4 mb-3">
-              {/* Ngày sinh */}
               <div className="flex-1">
                 <label
                   htmlFor="ngaySinh"
@@ -206,7 +248,6 @@ const RegisterCandidate = () => {
               </div>
             </div>
 
-            {/* Lương */}
             <div className="flex gap-4 mb-3">
               <div className="flex-1">
                 <label
@@ -215,16 +256,19 @@ const RegisterCandidate = () => {
                 >
                   Lương Bắt Đầu
                 </label>
-                <input
-                  type="number"
-                  id="luongBatDau"
-                  name="luongBatDau"
-                  value={formData.luongBatDau}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                  placeholder="Nhập lương bắt đầu"
-                  required
-                />
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    id="luongBatDau"
+                    name="luongBatDau"
+                    value={formData.luongBatDau}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                    placeholder="Nhập lương bắt đầu (VND)"
+                    required
+                  />
+                  <span className="font-bold">VND</span>
+                </div>
               </div>
               <div className="flex-1">
                 <label
@@ -233,32 +277,34 @@ const RegisterCandidate = () => {
                 >
                   Lương Kết Thúc
                 </label>
-                <input
-                  type="number"
-                  id="luongKetThuc"
-                  name="luongKetThuc"
-                  value={formData.luongKetThuc}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
-                  placeholder="Nhập lương kết thúc"
-                  required
-                />
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    id="luongKetThuc"
+                    name="luongKetThuc"
+                    value={formData.luongKetThuc}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                    placeholder="Nhập lương kết thúc"
+                    required
+                  />
+                  <span className="font-bold">VND</span>
+                </div>
               </div>
             </div>
 
             <div className="flex gap-4 mb-3">
-              {/* Vị trí */}
               <div className="flex-1">
                 <label
-                  htmlFor="id_vitri"
+                  htmlFor="idViTri"
                   className="block text-gray-700 font-medium"
                 >
                   Vị Trí
                 </label>
                 <select
-                  id="id_vitri"
-                  name="id_vitri"
-                  value={formData.id_vitri}
+                  id="idViTri"
+                  name="idViTri"
+                  value={formData.idViTri}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
                   required
@@ -267,8 +313,8 @@ const RegisterCandidate = () => {
                     Chọn vị trí
                   </option>
                   {positions.map((position) => (
-                    <option key={position.id} value={position.id}>
-                      {position.name}
+                    <option key={position.idViTri} value={position.idViTri}>
+                      {position.tenViTri}
                     </option>
                   ))}
                 </select>
@@ -277,15 +323,15 @@ const RegisterCandidate = () => {
               {/* Tỉnh thành */}
               <div className="flex-1">
                 <label
-                  htmlFor="idtinhThanh"
+                  htmlFor="idTinhThanh"
                   className="block text-gray-700 font-medium"
                 >
                   Tỉnh Thành
                 </label>
                 <select
-                  id="idtinhThanh"
-                  name="idtinhThanh"
-                  value={formData.idtinhThanh}
+                  id="idTinhThanh"
+                  name="idTinhThanh"
+                  value={formData.idTinhThanh}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
                   required
@@ -294,20 +340,63 @@ const RegisterCandidate = () => {
                     Chọn tỉnh thành
                   </option>
                   {provinces.map((province) => (
-                    <option key={province.id} value={province.id}>
-                      {province.name}
+                    <option
+                      key={province.idTinhThanh}
+                      value={province.idTinhThanh}
+                    >
+                      {province.tenTinhThanh}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
-
-            {/* Thêm các trường khác tương tự ở đây */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex-1">
+                <label
+                  htmlFor="idViTri"
+                  className="block text-gray-700 font-medium"
+                >
+                  Level
+                </label>
+                <select
+                  id="idCapDo"
+                  name="idCapDo"
+                  value={formData.idCapDo}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                  required
+                >
+                  <option value="" disabled>
+                    Chọn level
+                  </option>
+                  {levels.map((level) => (
+                    <option key={level.idCapDo} value={level.idCapDo}>
+                      {level.tenCapDo}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="anhDaiDien"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Ảnh Đại Diện
+                </label>
+                <input
+                  type="file"
+                  id="anhDaiDien"
+                  name="anhDaiDien"
+                  onChange={handleFileChange}
+                  className="mt-1 block w-full text-sm text-gray-500"
+                />
+              </div>
+            </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition"
+              className="w-full bg-green-500 mt-4 text-white py-2 px-4 rounded-md hover:bg-green-600 transition"
             >
               Đăng Ký
             </button>

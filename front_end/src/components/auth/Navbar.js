@@ -6,10 +6,15 @@ import { useNavigate } from "react-router-dom";
 import getTimeAgo from "../../assets/Js/configTime";
 
 import { IoIosSearch } from "react-icons/io";
-var user = {
-  id: 23,
-  tenLoaiTK: "Company"
+
+var user = JSON.parse(sessionStorage.getItem("data")) || {
+  quyen: null,
 };
+
+if (!user.quyen) {
+  
+}
+
 var notifications = [
   {
     idThongBao: 1,
@@ -164,7 +169,11 @@ function Navbar() {
 
   const handleLogout = () => {
     alert("Đăng xuất Thành Công");
-    user = null;
+    sessionStorage.removeItem("data");
+    sessionStorage.clear();
+    user = {
+      quyen: null,
+    };
     navigate("/");
   };
   return (
@@ -190,7 +199,7 @@ function Navbar() {
               Trang Chủ
             </Link>
           </li>
-          {user && user.tenLoaiTK === "User" && (
+          {user.quyen === "User" && (
             <li>
               <Link
                 to="/yourjob"
@@ -199,8 +208,8 @@ function Navbar() {
                 Việc Thích Hợp
               </Link>
             </li>
-          ) }
-          
+          )}
+
           <li>
             <Link
               to="/company"
@@ -209,7 +218,7 @@ function Navbar() {
               Danh Nghiệp
             </Link>
           </li>
-          {user && user.tenLoaiTK === "Company" && (
+          {user.quyen === "Company" && (
             <li>
               <Link
                 to="/post-job"
@@ -218,7 +227,7 @@ function Navbar() {
                 Đăng Bài
               </Link>
             </li>
-          ) }
+          )}
         </ul>
 
         <div className="flex items-center gap-4">
@@ -231,7 +240,7 @@ function Navbar() {
             <IoIosSearch className="absolute right-2 top-2 text-white text-xl" />
           </div>
 
-          {user ? (
+          {user.quyen ? (
             <div className="flex justify-between items-center w-24 relative">
               <div className="relative" ref={dropdownRef}>
                 <IoNotifications
@@ -315,7 +324,7 @@ function Navbar() {
               <div className="relative" ref={dropdownRef}>
                 <img
                   className="w-10 h-10 bg-gray-600 rounded-full cursor-pointer"
-                  src=""
+                  src={user.avatar}
                   alt="User Avatar"
                   onClick={toggleDropdown}
                 />
@@ -323,7 +332,7 @@ function Navbar() {
                 {/* Dropdown */}
                 {isDropdownInfo && (
                   <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg overflow-hidden z-10">
-                    {user.tenLoaiTK === "User" ? (
+                    {user.quyen === "User" ? (
                       <ul className="text-sm text-red-600  font-semibold m-0 p-0 border-1 ">
                         <Link
                           to={`/info-candidate/${user.id}`}

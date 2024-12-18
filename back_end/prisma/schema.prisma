@@ -18,10 +18,11 @@ datasource db {
 
 model LOAITAIKHOAN {
   idLoaiTK  Int         @id @default(autoincrement())
-  quyen       String
+  quyen     String
   moTa      String?
   nguoiDung NGUOIDUNG[]
   congTy    CONGTY[]
+  Admin     Admin[]
 }
 
 model NGUOIDUNG {
@@ -34,12 +35,13 @@ model NGUOIDUNG {
   ngaySinh     DateTime
   sdt          String
   diaChi       String?
-  email        String
+  email        String   @unique
   matKhau      String
   luongBatDau  Float?
   luongKetThuc Float?
-  trangThai    String?
+  trangThai    Int      @default(0)
   anhDaiDien   String?
+  xacThuc      Boolean  @default(false)
 
   loaiTaiKhoan LOAITAIKHOAN  @relation(fields: [idLoaiTK], references: [idLoaiTK])
   viTri        VITRIUNGTUYEN @relation(fields: [idViTri], references: [idViTri])
@@ -140,12 +142,14 @@ model THONGBAO {
   idThongBao  Int      @id @default(autoincrement())
   noiDung     String
   thoiGianTB  DateTime
-  trangThai   Int @default(0)
-  idNguoiDung Int
+  trangThai   Int      @default(0)
+  idNguoiDung Int?
+  idCongTy    Int?
   idBaiDang   Int
 
-  nguoiDung NGUOIDUNG @relation(fields: [idNguoiDung], references: [idNguoiDung])
-  baiDang   BAIDANG   @relation(fields: [idBaiDang], references: [idBaiDang])
+  nguoiDung NGUOIDUNG? @relation(fields: [idNguoiDung], references: [idNguoiDung])
+  congty    CONGTY?    @relation(fields: [idCongTy], references: [idCongTy])
+  baiDang   BAIDANG    @relation(fields: [idBaiDang], references: [idBaiDang])
 }
 
 model BAIDANG {
@@ -155,7 +159,7 @@ model BAIDANG {
   tenBaiDang   String
   viTri        String
   soLuong      Int
-  trangThai    String?
+  trangThai    Int      @default(0)
   hinhAnh      String?
   luongBatDau  Float
   luongKetThuc Float
@@ -183,7 +187,7 @@ model DANHSACH_UV {
   idBaiDang   Int
   idNguoiDung Int
   thoiGianNop DateTime
-  trangThai   String?
+  trangThai   Int      @default(0)
 
   baiDang   BAIDANG   @relation(fields: [idBaiDang], references: [idBaiDang])
   nguoiDung NGUOIDUNG @relation(fields: [idNguoiDung], references: [idNguoiDung])
@@ -193,20 +197,35 @@ model DANHSACH_UV {
 
 model CONGTY {
   idCongTy        Int      @id @default(autoincrement())
-  idLoaiTK        Int
+  idLoaiTK        Int? // Thêm dấu hỏi để cho phép null
   tenCongTy       String
   diaChi          String
-  email           String
+  email           String   @unique
   sDT             String
   linkWeb         String?
   nganhNghe       String?
   soLuongNhanVien Int?
   logo            String?
-  trangThai       String?
+  trangThai       Int?     @default(0)
   ngayThanhLap    DateTime
   moTa            String?
   matKhau         String
+  xacThuc         Boolean  @default(false)
 
-  loaiTaiKhoan LOAITAIKHOAN @relation(fields: [idLoaiTK], references: [idLoaiTK])
+  loaiTaiKhoan LOAITAIKHOAN? @relation(fields: [idLoaiTK], references: [idLoaiTK])
   baiDang      BAIDANG[]
+  THONGBAO     THONGBAO[]
+}
+
+model Admin {
+  id         Int       @id @default(autoincrement()) 
+  idLoaiTK   Int?
+  email      String    @unique 
+  matKhau    String 
+  ten        String 
+  sDT        String? 
+  ngaySinh   DateTime? 
+  anhDaiDien String? 
+
+  loaiTaiKhoan LOAITAIKHOAN? @relation(fields: [idLoaiTK], references: [idLoaiTK])
 }

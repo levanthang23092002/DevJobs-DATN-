@@ -19,7 +19,10 @@ import InfoCandidate from "./pages/users/InfoCandidate.js";
 import ChangePassword from "./components/user/ChangePassword.js";
 import HistoryPost from "./pages/users/HistoryPost.js";
 import UpdatePostJob from "./pages/users/UpdatePostJob.js";
-import ViewCVCandidate from "./pages/users/ViewCVCandidate.js"
+import ViewCVCandidate from "./pages/users/ViewCVCandidate.js";
+import { ToastContainer } from "react-toastify"; // Import ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // Import CSS cho Toast
+import AdminLogin from "./pages/admin/login.js";
 
 function App() {
   return (
@@ -45,11 +48,11 @@ function App() {
           <Route path="/history/:id" element={<HistoryPost />} />
           <Route path="/history/update-post/:id" element={<UpdatePostJob />} />
           <Route path="/view/CV/:id" element={<ViewCVCandidate />} />
-
         </Route>
-       
+        <Route path="/login-addmin" element={<AdminLogin />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
+      <ToastContainer autoClose={5000} position="top-right" />
     </Router>
   );
 }
