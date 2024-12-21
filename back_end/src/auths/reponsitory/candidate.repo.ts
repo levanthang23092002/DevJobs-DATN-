@@ -23,13 +23,13 @@ export class CandidateRepository {
   }
 
   async updateCandidate(id: number, data: any) {
-    return this.prisma.nGUOIDUNG.update({
+    return await this.prisma.nGUOIDUNG.update({
       where: { idNguoiDung: id },
       data,
     });
   }
   async checkCandidate(email: string) {
-    return this.prisma.nGUOIDUNG.findMany({
+    return await this.prisma.nGUOIDUNG.findMany({
       where: { email },
       include: {
         loaiTaiKhoan: true, // Include bảng LoaiTaiKhoan

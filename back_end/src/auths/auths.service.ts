@@ -52,6 +52,39 @@ export class AuthsService {
       throw new BadRequestException(error.message);
     }
   }
+  async getAllCompany() {
+    try {
+      const allCompany = await this.repoAuth.getAllCompany();
+      if (!allCompany) {
+        throw new BadRequestException('Không có công ty nào');
+      }
+      return allCompany;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async getAllPost() {
+    try {
+      const allPost = await this.repoAuth.getAllPost();
+      if (!allPost) {
+        throw new BadRequestException('Không có bài đăng nào');
+      }
+      return allPost;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async getAllCandidate() {
+    try {
+      const allCandidate = await this.repoAuth.getAllCandidate();
+      if (!allCandidate) {
+        throw new BadRequestException('Không có người dùng nào');
+      }
+      return allCandidate;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
   // Company
   async registerCompany(datas: CompanyRegisterDto) {
     const { email, matKhau, ...rest } = datas;
@@ -120,8 +153,8 @@ export class AuthsService {
       if (company.xacThuc === false) {
         throw new BadRequestException('Tài khoản chưa xác thực!');
       }
-      if (company.trangThai == 0) {
-        throw new BadRequestException('Tài khoản chưa được phê duyệt!');
+      if (company.trangThai != 'Đã Duyệt') {
+        throw new BadRequestException(` Tài Khoản ${company.trangThai}`);
       }
       const isPasswordValid = await bcrypt.compare(matKhau, company.matKhau);
       if (!isPasswordValid) {
@@ -226,8 +259,8 @@ export class AuthsService {
       if (candidate[0].xacThuc === false) {
         throw new BadRequestException('Tài khoản chưa xác thực!');
       }
-      if (candidate[0].trangThai == 0) {
-        throw new BadRequestException('Tài khoản chưa được phê duyệt!');
+      if (candidate[0].trangThai != 'Đã Duyệt') {
+        throw new BadRequestException(` Tài Khoản ${candidate[0].trangThai}`);
       }
       const isPasswordValid = await bcrypt.compare(
         matKhau,
@@ -270,8 +303,9 @@ export class AuthsService {
     if (!admin) {
       throw new BadRequestException('tài khoản không tồn tại');
     }
+    console.log(admin.matKhau);
     const isPasswordValid = await bcrypt.compare(matKhau, admin.matKhau);
-    if (isPasswordValid) {
+    if (!isPasswordValid) {
       throw new BadRequestException('mật khẩu không chinh xác');
     }
     const quyen = admin?.quyen || 'User';

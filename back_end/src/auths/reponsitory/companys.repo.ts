@@ -32,7 +32,7 @@ export class CompanyRepository {
     return this.prisma.cONGTY.findFirst({
       where: { email },
       include: {
-        loaiTaiKhoan: true, // Include bảng LoaiTaiKhoan
+        loaiTaiKhoan: true,
       },
     });
   }

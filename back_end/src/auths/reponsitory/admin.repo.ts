@@ -17,7 +17,6 @@ export class AdminRepository {
       ...rest,
       ...restloai,
     };
-    console.log(admin);
     return admin;
   }
 }

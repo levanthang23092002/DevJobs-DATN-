@@ -40,7 +40,7 @@ model NGUOIDUNG {
   matKhau      String
   luongBatDau  Float?
   luongKetThuc Float?
-  trangThai    Int      @default(0)
+  trangThai    String   @default("Chờ Duyệt")
   anhDaiDien   String?
   xacThuc      Boolean  @default(false)
 
@@ -60,14 +60,14 @@ model NGUOIDUNG {
 model VITRIUNGTUYEN {
   idViTri   Int         @id @default(autoincrement())
   tenViTri  String
-  trangThai Int         @default(2)
+  trangThai String      @default("Đã Duyệt")
   nguoiDung NGUOIDUNG[]
 }
 
 model TINHTHANH {
   idTinhThanh  Int         @id @default(autoincrement())
   tenTinhThanh String
-  trangThai    Int         @default(2)
+  trangThai    String      @default("Đã Duyệt")
   nguoiDung    NGUOIDUNG[]
   baiDang      BAIDANG[]
 }
@@ -76,7 +76,7 @@ model CapDo {
   idCapDo   Int         @id @default(autoincrement())
   tenCapDo  String
   moTa      String?
-  trangThai Int         @default(2)
+  trangThai String      @default("Đã Duyệt")
   nguoiDung NGUOIDUNG[]
 }
 
@@ -87,7 +87,6 @@ model HOCVAN {
   nganhHoc    String
   diem        Float?
   idNguoiDung Int
-  
 
   nguoiDung NGUOIDUNG @relation(fields: [idNguoiDung], references: [idNguoiDung])
 }
@@ -164,7 +163,7 @@ model BAIDANG {
   tenBaiDang   String
   viTri        String
   soLuong      Int
-  trangThai    Int      @default(0)
+  trangThai    String   @default("Chờ Duyệt")
   hinhAnh      String?
   luongBatDau  Float
   luongKetThuc Float
@@ -172,6 +171,7 @@ model BAIDANG {
   ngayDang     DateTime
   ngaySua      DateTime
   diaChiCuThe  String?
+  moTa         String?
 
   congTy     CONGTY        @relation(fields: [idCongTy], references: [idCongTy])
   tinhThanh  TINHTHANH     @relation(fields: [idTinhThanh], references: [idTinhThanh])
@@ -192,7 +192,7 @@ model DANHSACH_UV {
   idBaiDang   Int
   idNguoiDung Int
   thoiGianNop DateTime
-  trangThai   Int      @default(0)
+  trangThai   String   @default("Chờ Duyệt")
 
   baiDang   BAIDANG   @relation(fields: [idBaiDang], references: [idBaiDang])
   nguoiDung NGUOIDUNG @relation(fields: [idNguoiDung], references: [idNguoiDung])
@@ -211,7 +211,7 @@ model CONGTY {
   nganhNghe       String?
   soLuongNhanVien Int?
   logo            String?
-  trangThai       Int?     @default(0)
+  trangThai       String   @default("Chờ Duyệt")
   ngayThanhLap    DateTime
   moTa            String?
   matKhau         String

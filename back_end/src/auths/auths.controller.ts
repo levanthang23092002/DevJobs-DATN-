@@ -20,6 +20,18 @@ export class AuthsController {
   async getallLevel() {
     return await this.service.getAllLevel();
   }
+  @Get('all-company')
+  async getallCompany() {
+    return await this.service.getAllCompany();
+  }
+  @Get('all-post')
+  async getallPost() {
+    return await this.service.getAllPost();
+  }
+  @Get('all-candidate')
+  async getallCandidate() {
+    return await this.service.getAllCandidate();
+  }
   // Company
   @Post('register-company')
   async registerCompany(@Body() dto: CompanyRegisterDto) {
