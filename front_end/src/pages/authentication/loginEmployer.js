@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AuthApi from "../../api/auth/auth";
-import axios from "axios";
+
 
 const LoginEmployer = () => {
   const [formData, setFormData] = useState({

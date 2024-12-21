@@ -38,11 +38,11 @@ class AuthApi {
       return response.data;
     } catch (error) {
       if (error.response) {
-        toast.error(error.response.data.message || "Có lỗi xảy ra!");
+      console.log(error.response.data.message || "Có lỗi xảy ra!");
       } else if (error.request) {
-        toast.error("Không thể kết nối đến server. Vui lòng thử lại.");
+        console.log("Không thể kết nối đến server. Vui lòng thử lại.");
       } else {
-        toast.error(error.message);
+        console.log(error.message);
       }
     }
   }

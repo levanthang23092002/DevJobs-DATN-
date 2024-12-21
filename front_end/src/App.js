@@ -30,6 +30,7 @@ function App() {
       <Routes>
         {/* Layout-wrapped routes */}
         <Route element={<Layout />}>
+          
           <Route path="/" element={<Home />} />
           <Route path="/yourjob" element={<About />} />
           <Route path="/company" element={<Company />} />

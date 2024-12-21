@@ -4,6 +4,10 @@ import { AiOutlineMail } from "react-icons/ai";
 import { SlPhone } from "react-icons/sl";
 import { TbWorld } from "react-icons/tb";
 
+import AuthApi from "../../api/auth/auth";
+
+const jobList = await AuthApi.getAllAuth("/all-post");
+
 const job = {
   id_baiDang: 1,
   logo: "https://via.placeholder.com/40",
@@ -34,52 +38,7 @@ const job = {
     },
   ],
 };
-const jobList = [
-  {
-    idbaiDang: 1,
-    tenBaiDang: "R/Shiny Developer",
-    idCongTy: 101,
-    tenCongTy: "Appslion",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "R/Shiny Developer",
-    hanChot: "2024-12-30",
-    tinhThanh: "Poland",
-    soLuong: 5,
-  },
-  {
-    idbaiDang: 2,
-    tenBaiDang: "Back End Developer",
-    idCongTy: 102,
-    tenCongTy: "Brillio",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Backend Developer",
-    hanChot: "2024-12-25",
-    tinhThanh: "Mexico",
-    soLuong: 3,
-  },
-  {
-    idbaiDang: 3,
-    tenBaiDang: "Product Development Engineer sdffsfdfdsdfsdfs dsfdsf à á adfss",
-    idCongTy: 103,
-    tenCongTy: "Pixelle",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Product Engineer",
-    hanChot: "2024-12-28",
-    tinhThanh: "United States",
-    soLuong: 7,
-  },
-  {
-    idbaiDang: 4,
-    tenBaiDang: "Frontend Architect",
-    idCongTy: 104,
-    tenCongTy: "Wix",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Frontend Architect",
-    hanChot: "2024-12-22",
-    tinhThanh: "Israel",
-    soLuong: 2,
-  },
-];
+
 function ViewJob() {
   return (
     <div className="container flex ">
@@ -208,13 +167,13 @@ function ViewJob() {
           <div className="space-y-4 mt-4">
             {jobList.map((jobItem) => (
               <div
-                key={jobItem.id}
+                key={jobItem.idBaiDang}
                 className="bg-white rounded-lg shadow-lg px-4 py-2"
               >
                 {/* Phần logo và tên công ty */}
                 <div className="flex items-center">
                   <img
-                    src={jobItem.logoCongTy}
+                    src={jobItem.logo}
                     alt={jobItem.tenCongTy}
                     className="w-10 h-10 rounded-full mr-4"
                   />
@@ -231,7 +190,7 @@ function ViewJob() {
                 {/* Thông tin tỉnh thành và vị trí */}
                 <div className="flex justify-between m-0">
                   <p className="text-sm text-gray-600 truncate">
-                    {jobItem.tinhThanh}
+                    {jobItem.tenTinhThanh}
                   </p>
                   <p className="text-sm text-gray-600 truncate">
                     {jobItem.viTri}
@@ -240,7 +199,7 @@ function ViewJob() {
 
                 {/* Liên kết xem chi tiết công việc */}
                 <Link
-                  to={`/job/${jobItem.idbaiDang}`} // Đường dẫn chi tiết công việc
+                  to={`/job/${jobItem.idBaiDang}`} // Đường dẫn chi tiết công việc
                   className="color-item hover:text-red-600 mt-2 block "
                 >
                   Xem chi tiết

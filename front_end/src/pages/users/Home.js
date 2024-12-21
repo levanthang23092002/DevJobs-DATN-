@@ -3,339 +3,9 @@ import { Link } from "react-router-dom";
 import { RxCaretDown } from "react-icons/rx";
 import { MdArrowBackIos } from "react-icons/md";
 import { GrNext } from "react-icons/gr";
+import AuthApi from "../../api/auth/auth";
 
-const jobListings = [
-  {
-    idbaiDang: 1,
-    tenBaiDang: "R/Shiny Developer",
-    idCongTy: 101,
-    tenCongTy: "Appslion",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "R/Shiny Developer",
-    hanChot: "2024-12-30",
-    tinhThanh: "Poland",
-    soLuong: 5,
-  },
-  {
-    idbaiDang: 2,
-    tenBaiDang: "Back End Developer",
-    idCongTy: 102,
-    tenCongTy: "Brillio",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Backend Developer",
-    hanChot: "2024-12-25",
-    tinhThanh: "Mexico",
-    soLuong: 3,
-  },
-  {
-    idbaiDang: 3,
-    tenBaiDang: "Product Development Engineer",
-    idCongTy: 103,
-    tenCongTy: "Pixelle",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Product Engineer",
-    hanChot: "2024-12-28",
-    tinhThanh: "United States",
-    soLuong: 7,
-  },
-  {
-    idbaiDang: 4,
-    tenBaiDang: "Frontend Architect",
-    idCongTy: 104,
-    tenCongTy: "Wix",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Frontend Architect",
-    hanChot: "2024-12-22",
-    tinhThanh: "Israel",
-    soLuong: 2,
-  },
-  {
-    idbaiDang: 5,
-    tenBaiDang: "Solutions Architect",
-    idCongTy: 105,
-    tenCongTy: "Sopra Steria",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Solutions Architect",
-    hanChot: "2024-12-26",
-    tinhThanh: "France",
-    soLuong: 4,
-  },
-  {
-    idbaiDang: 6,
-    tenBaiDang: "Web Design Developer",
-    idCongTy: 106,
-    tenCongTy: "Hitachi",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Web Design Developer",
-    hanChot: "2024-12-20",
-    tinhThanh: "India",
-    soLuong: 6,
-  },
-  {
-    idbaiDang: 7,
-    tenBaiDang: "Business Developer",
-    idCongTy: 107,
-    tenCongTy: "team.blue",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Business Developer",
-    hanChot: "2024-12-18",
-    tinhThanh: "Netherlands",
-    soLuong: 8,
-  },
-  {
-    idbaiDang: 8,
-    tenBaiDang: "Creative Tech Developer",
-    idCongTy: 108,
-    tenCongTy: "Devoteam",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Web Developer",
-    hanChot: "2024-12-15",
-    tinhThanh: "France",
-    soLuong: 3,
-  },
-  {
-    idbaiDang: 9,
-    tenBaiDang: "Senior Backend Developer",
-    idCongTy: 109,
-    tenCongTy: "Xyz Tech",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Backend Developer",
-    hanChot: "2024-12-22",
-    tinhThanh: "Germany",
-    soLuong: 4,
-  },
-  {
-    idbaiDang: 10,
-    tenBaiDang: "Data Scientist",
-    idCongTy: 110,
-    tenCongTy: "DataLab",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Data Scientist",
-    hanChot: "2024-12-28",
-    tinhThanh: "United Kingdom",
-    soLuong: 2,
-  },
-  {
-    idbaiDang: 11,
-    tenBaiDang: "Machine Learning Engineer",
-    idCongTy: 111,
-    tenCongTy: "TechLabs",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "ML Engineer",
-    hanChot: "2024-12-25",
-    tinhThanh: "Canada",
-    soLuong: 3,
-  },
-  {
-    idbaiDang: 12,
-    tenBaiDang: "Full Stack Developer",
-    idCongTy: 112,
-    tenCongTy: "Softwave",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Full Stack Developer",
-    hanChot: "2024-12-30",
-    tinhThanh: "United States",
-    soLuong: 6,
-  },
-  {
-    idbaiDang: 13,
-    tenBaiDang: "Product Designer",
-    idCongTy: 113,
-    tenCongTy: "DesignCo",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Product Designer",
-    hanChot: "2024-12-20",
-    tinhThanh: "Spain",
-    soLuong: 4,
-  },
-  {
-    idbaiDang: 14,
-    tenBaiDang: "Frontend Developer",
-    idCongTy: 114,
-    tenCongTy: "WebX",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Frontend Developer",
-    hanChot: "2024-12-18",
-    tinhThanh: "Australia",
-    soLuong: 5,
-  },
-  {
-    idbaiDang: 15,
-    tenBaiDang: "DevOps Engineer",
-    idCongTy: 115,
-    tenCongTy: "OpsCo",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "DevOps Engineer",
-    hanChot: "2024-12-23",
-    tinhThanh: "Japan",
-    soLuong: 2,
-  },
-  {
-    idbaiDang: 16,
-    tenBaiDang: "Mobile App Developer",
-    idCongTy: 116,
-    tenCongTy: "AppDev",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Mobile App Developer",
-    hanChot: "2024-12-17",
-    tinhThanh: "Germany",
-    soLuong: 3,
-  },
-  {
-    idbaiDang: 17,
-    tenBaiDang: "Cloud Architect",
-    idCongTy: 117,
-    tenCongTy: "CloudCorp",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Cloud Architect",
-    hanChot: "2024-12-22",
-    tinhThanh: "France",
-    soLuong: 2,
-  },
-  {
-    idbaiDang: 18,
-    tenBaiDang: "Security Engineer",
-    idCongTy: 118,
-    tenCongTy: "SecureTech",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Security Engineer",
-    hanChot: "2024-12-30",
-    tinhThanh: "Netherlands",
-    soLuong: 3,
-  },
-  {
-    idbaiDang: 19,
-    tenBaiDang: "Backend Engineer",
-    idCongTy: 119,
-    tenCongTy: "BackendWorks",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Backend Engineer",
-    hanChot: "2024-12-25",
-    tinhThanh: "India",
-    soLuong: 5,
-  },
-  {
-    idbaiDang: 20,
-    tenBaiDang: "Java Developer",
-    idCongTy: 120,
-    tenCongTy: "CodeLabs",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Java Developer",
-    hanChot: "2024-12-30",
-    tinhThanh: "Brazil",
-    soLuong: 4,
-  },
-  {
-    idbaiDang: 21,
-    tenBaiDang: "Data Analyst",
-    idCongTy: 121,
-    tenCongTy: "DataX",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Data Analyst",
-    hanChot: "2024-12-22",
-    tinhThanh: "USA",
-    soLuong: 6,
-  },
-  {
-    idbaiDang: 22,
-    tenBaiDang: "React Developer",
-    idCongTy: 122,
-    tenCongTy: "ReactCo",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "React Developer",
-    hanChot: "2024-12-15",
-    tinhThanh: "Canada",
-    soLuong: 2,
-  },
-  {
-    idbaiDang: 23,
-    tenBaiDang: "Node.js Developer",
-    idCongTy: 123,
-    tenCongTy: "NodeTech",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Node.js Developer",
-    hanChot: "2024-12-20",
-    tinhThanh: "UK",
-    soLuong: 3,
-  },
-  {
-    idbaiDang: 24,
-    tenBaiDang: "Systems Engineer",
-    idCongTy: 124,
-    tenCongTy: "SystemWorks",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Systems Engineer",
-    hanChot: "2024-12-28",
-    tinhThanh: "France",
-    soLuong: 4,
-  },
-  {
-    idbaiDang: 25,
-    tenBaiDang: "AI Specialist",
-    idCongTy: 125,
-    tenCongTy: "AI Labs",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "AI Specialist",
-    hanChot: "2024-12-18",
-    tinhThanh: "Germany",
-    soLuong: 3,
-  },
-  {
-    idbaiDang: 26,
-    tenBaiDang: "UX/UI Designer",
-    idCongTy: 126,
-    tenCongTy: "UXDev",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "UX/UI Designer",
-    hanChot: "2024-12-22",
-    tinhThanh: "Italy",
-    soLuong: 2,
-  },
-  {
-    idbaiDang: 27,
-    tenBaiDang: "Game Developer",
-    idCongTy: 127,
-    tenCongTy: "GameCo",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Game Developer",
-    hanChot: "2024-12-30",
-    tinhThanh: "Spain",
-    soLuong: 4,
-  },
-  {
-    idbaiDang: 28,
-    tenBaiDang: "IoT Engineer",
-    idCongTy: 128,
-    tenCongTy: "IoT Labs",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "IoT Engineer",
-    hanChot: "2024-12-25",
-    tinhThanh: "USA",
-    soLuong: 5,
-  },
-  {
-    idbaiDang: 29,
-    tenBaiDang: "Blockchain Developer",
-    idCongTy: 129,
-    tenCongTy: "BlockDev",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Blockchain Developer",
-    hanChot: "2024-12-22",
-    tinhThanh: "China",
-    soLuong: 6,
-  },
-  {
-    idbaiDang: 30,
-    tenBaiDang: "Software Engineer",
-    idCongTy: 130,
-    tenCongTy: "SoftTech",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Software Engineer",
-    hanChot: "2024-12-18",
-    tinhThanh: "India",
-    soLuong: 7,
-  },
-];
+const jobListings = await AuthApi.getAllAuth("/all-post");
 
 var filteredJob = [];
 var FilterPosition = [];
@@ -490,19 +160,19 @@ const Home = () => {
     if (filteredJob.length > 0) {
       setDropdownTinhThanh(false);
       const filtered = filteredJob.filter((job) =>
-        selectedTinhThanh.includes(job.tinhThanh)
+        selectedTinhThanh.includes(job.tenTinhThanh)
       );
       filteredJob = filtered;
       setFilteredJobs(filtered);
-      FilterProvince = [...new Set(filteredJob.map((job) => job.tinhThanh))];
+      FilterProvince = [...new Set(filteredJob.map((job) => job.tenTinhThanh))];
     } else {
       setDropdownTinhThanh(false);
       const filtered = jobListings.filter((job) =>
-        selectedTinhThanh.includes(job.tinhThanh)
+        selectedTinhThanh.includes(job.tenTinhThanh)
       );
       filteredJob = filtered;
       setFilteredJobs(filtered);
-      FilterProvince = [...new Set(filteredJob.map((job) => job.tinhThanh))];
+      FilterProvince = [...new Set(filteredJob.map((job) => job.tenTinhThanh))];
     }
   };
 
@@ -519,9 +189,9 @@ const Home = () => {
   };
   var uniqueTinhThanh = null;
   if (filteredJob.length > 0) {
-    uniqueTinhThanh = [...new Set(filteredJob.map((job) => job.tinhThanh))];
+    uniqueTinhThanh = [...new Set(filteredJob.map((job) => job.tenTinhThanh))];
   } else {
-    uniqueTinhThanh = [...new Set(jobListings.map((job) => job.tinhThanh))];
+    uniqueTinhThanh = [...new Set(jobListings.map((job) => job.tenTinhThanh))];
   }
 
   // lọc theo danh nghiệp
@@ -600,7 +270,7 @@ const Home = () => {
                         {sortedViTri.map(([location, count]) => (
                           <li
                             key={location}
-                            onClick={(e) => e.stopPropagation()} 
+                            onClick={(e) => e.stopPropagation()}
                             className="flex items-center space-x-2 py-2"
                           >
                             <input
@@ -647,7 +317,7 @@ const Home = () => {
             <ul>
               <li>
                 {isDropdownTinhThanh && (
-                  <div  className="absolute  bg-white border shadow-md z-10 mt-2 rounded-lg w-60">
+                  <div className="absolute  bg-white border shadow-md z-10 mt-2 rounded-lg w-60">
                     <div className="max-h-60 overflow-auto p-2">
                       {/* Checkbox cho mỗi tỉnh thành */}
                       {uniqueTinhThanh.map((tinhThanh, index) => (
@@ -704,7 +374,7 @@ const Home = () => {
                       {uniqueCompanies.map((tenCongTy, index) => (
                         <label
                           key={index}
-                          onClick={(e) => e.stopPropagation()} 
+                          onClick={(e) => e.stopPropagation()}
                           className="flex items-center space-x-2 mb-2"
                         >
                           <input
@@ -822,33 +492,34 @@ const Home = () => {
         {filteredJobs.length > 0
           ? filteredJobs.map((job) => (
               <div
-                key={job.idbaiDang}
+                key={job.idBaiDang}
                 className="bg-gray-700 px-4 py-3 rounded-lg shadow-md relative"
               >
                 <div className="flex items-center space-x-3">
                   <img
-                    src={job.logoCongTy}
+                    src={job.logo}
                     alt={job.tenCongTy}
-                    className="rounded-full"
+                    className="rounded-full w-16 h-16"
                   />
-                  <div>
-                    <p className="font-semibold m-0">{job.tenCongTy}</p>
+                  <div className="mt-4">
+                    <p className="font-semibold py-1 px-2  m-0">{job.tenCongTy}</p>
+                    <p className="text-xl text-white font-bold py-1 px-2  m-0">
+                      {job.tenBaiDang}
+                    </p>
                   </div>
                 </div>
                 {/* Hạn chót ở góc trên bên phải */}
-                <p className="absolute top-6 right-4 text-sm">
+                <p className="absolute top-2 bg-orange-500 p-1 rounded-lg right-2 text-sm">
                   Deadline: {job.hanChot}
                 </p>
-                <p className="text-xl text-white font-bold p-2 m-0">
-                  {job.tenBaiDang}
-                </p>
+
                 <p className="text-sm px-2 m-0">{job.viTri}</p>
                 <div className="mt-2 text-sm px-2 flex justify-between">
-                  <p className="m-0">{job.tinhThanh}</p>
+                  <p className="m-0">{job.tenTinhThanh}</p>
                   <p>{job.soLuong}</p>
                 </div>
                 <Link
-                  to={`/job/${job.idbaiDang}`}
+                  to={`/job/${job.idBaiDang}`}
                   className="color-item hover:no-underline hover:text-[#0cc0df]"
                 >
                   <p className="text-sm px-2 m-0 text-right">Xem chi tiết</p>
@@ -857,33 +528,34 @@ const Home = () => {
             ))
           : currentJobListings.map((job) => (
               <div
-                key={job.idbaiDang}
+                key={job.idBaiDang}
                 className="bg-gray-700 px-4 py-3 rounded-lg shadow-md relative"
               >
                 <div className="flex items-center space-x-3">
                   <img
-                    src={job.logoCongTy}
+                    src={job.logo}
                     alt={job.tenCongTy}
-                    className="rounded-full"
+                    className="rounded-full w-16 h-16"
                   />
-                  <div>
-                    <p className="font-semibold m-0">{job.tenCongTy}</p>
+                  <div className="mt-4">
+                    <p className="font-semibold py-1 px-2 m-0">{job.tenCongTy}</p>
+                    <p className="text-xl text-white font-bold px-2 py-1  m-0">
+                      {job.tenBaiDang}
+                    </p>
                   </div>
                 </div>
                 {/* Hạn chót ở góc trên bên phải */}
-                <p className="absolute top-6 right-4 text-sm">
+                <p className="absolute top-2 bg-orange-500 p-1 rounded-lg right-2 text-sm">
                   Deadline: {job.hanChot}
                 </p>
-                <p className="text-xl text-white font-bold p-2 m-0">
-                  {job.tenBaiDang}
-                </p>
+
                 <p className="text-sm px-2 m-0">{job.viTri}</p>
                 <div className="mt-2 text-sm px-2 flex justify-between">
-                  <p className="m-0">{job.tinhThanh}</p>
+                  <p className="m-0">{job.tenTinhThanh}</p>
                   <p>{job.soLuong}</p>
                 </div>
                 <Link
-                  to={`/job/${job.idbaiDang}`}
+                  to={`/job/${job.idBaiDang}`}
                   className="color-item hover:no-underline hover:text-[#0cc0df]"
                 >
                   <p className="text-sm px-2 m-0 text-right">Xem chi tiết</p>

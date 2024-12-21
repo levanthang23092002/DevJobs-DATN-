@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+
 import AuthApi from "../../api/auth/auth";
 
 const AdminLogin = () => {
@@ -28,6 +28,8 @@ const AdminLogin = () => {
         if (response.status < 300) {
           const token = `Bearer ${response.data.token}`;
           await sessionStorage.setItem("token", token);
+          const admin = response.data.data;
+          await sessionStorage.setItem("admin", JSON.stringify(admin));
           setTimeout(() => {
             window.location.href = " http://localhost:3000/dashboard";
           }, 3000);

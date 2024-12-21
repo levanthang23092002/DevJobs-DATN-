@@ -2,16 +2,16 @@ import React, { useState } from "react";
 
 const Profile = () => {
   const [candidate, setCandidate] = useState({
-    id: "#345",
+    idNguoiDung: "",
     ten: "John Carter",
     viTri: "Backendr",
     email: "abc@gmail.com",
-    tinhThanh: "Hà Nội",
+    tenTinhThanh: "Hà Nội",
     trangThai: "Chờ Duyệt",
     anhDaiDien:
       "https://gratisography.com/wp-content/uploads/2024/03/gratisography-funflower-800x525.jpg",
     ngaySinh: "1990-01-01",
-    sDT: "123456789",
+    sdt: "123456789",
     luongBatDau: 100000000,
     luonKetThuc: 200000000,
   });
@@ -93,8 +93,8 @@ const Profile = () => {
             </label>
             {isEditing ? (
               <select
-                name="viTri"
-                value={candidate.viTri}
+                name="tenViTri"
+                value={candidate.tenViTri}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               >
@@ -117,7 +117,7 @@ const Profile = () => {
             {isEditing ? (
               <select
                 name="tinhThanh"
-                value={candidate.tinhThanh}
+                value={candidate.tenTinhThanh}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               >
@@ -129,7 +129,7 @@ const Profile = () => {
               </select>
             ) : (
               <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-                {candidate.tinhThanh}
+                {candidate.tenTinhThanh}
               </p>
             )}
           </div>
@@ -180,14 +180,14 @@ const Profile = () => {
             {isEditing ? (
               <input
                 type="text"
-                name="sDT"
-                value={candidate.sDT}
+                name="sdt"
+                value={candidate.sdt}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
             ) : (
               <p className="mt-1 block w-full px-3 py-2 text-gray-600 border rounded-md shadow-sm">
-                {candidate.sDT}
+                {candidate.sdt}
               </p>
             )}
           </div>
