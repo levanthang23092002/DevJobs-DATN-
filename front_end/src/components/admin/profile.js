@@ -36,7 +36,7 @@ const ProfileAdmin = () => {
     const file = e.target.files[0]; // Lấy file từ input
     if (file) {
       try {
-        // Gọi hàm uploadImage với file vừa chọn
+   
         const url = await uploadImage(file);
         if (url) {
           setCandidate((prev) => ({
@@ -62,13 +62,13 @@ const ProfileAdmin = () => {
       candidate.ngaySinh = new Date(candidate.ngaySinh);
       await AdminApi.getUpdateManager("/update/admin", candidate);
       const response = await AdminApi.getAdmin(`/admin/${candidate.id}`);
-      console.log(response);
       setCandidate(response.data);
     } catch (error) {
       console.error("Error saving data:", error);
     } finally {
       setIsEditing(false);
-   
+      const response = await AdminApi.getAdmin(`/admin/${candidate.id}`);
+      setCandidate(response.data);
     }
   };
 

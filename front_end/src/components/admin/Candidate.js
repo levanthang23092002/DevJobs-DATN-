@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { IoMdClose } from "react-icons/io";
-import AuthApi from "../../api/auth/auth";
+
 import AdminApi from "../../api/admin/admin";
 
-const candidates = await AuthApi.getAllAuth("/all-candidate");
+const candidates = await AdminApi.getAdmin("/all-candidate");
 
 const statusOptions = ["Sửa", "Duyệt", "Hủy", "Khóa"];
 
@@ -35,7 +35,7 @@ const CandidateList = () => {
     try {
       await AdminApi.getUpdateManager("update/candidate", payload);
 
-      // const res = await AuthApi.getAllAuth("/all-candidate");
+      // const res = await AuthApi.getAdmin("/all-candidate");
       // setData(res);
     } catch (error) {
       console.error("Error updating status:", error);

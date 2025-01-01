@@ -1,30 +1,55 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import CandidateApi from "../../api/user/candidate";
+import AuthApi from "../../api/auth/auth";
+import uploadImage from "../../assets/Js/UploadImage";
+import { toast } from "react-toastify";
 const Profile = () => {
   const [candidate, setCandidate] = useState({
     idNguoiDung: "",
     ten: "John Carter",
-    viTri: "Backendr",
+    idViTri: 1,
     email: "abc@gmail.com",
-    tenTinhThanh: "Hà Nội",
+    idTinhThanh: 1,
     trangThai: "Chờ Duyệt",
     anhDaiDien:
       "https://gratisography.com/wp-content/uploads/2024/03/gratisography-funflower-800x525.jpg",
     ngaySinh: "1990-01-01",
     sdt: "123456789",
     luongBatDau: 100000000,
-    luonKetThuc: 200000000,
+    luongKetThuc: 200000000,
+    idCapDo: 1,
   });
+  const [viTriOptions, setViTriOptions] = useState([
+    { idViTri: 1, tenViTri: "A" },
+  ]);
+  const [tinhThanhOptions, setTinhThanhOptions] = useState([
+    { idTinhThanh: 1, tenTinhThanh: "a" },
+  ]);
+  const [capDoOptions, setCapDoOptions] = useState([
+    { idCapDo: 1, tenCapDo: "a" },
+  ]);
 
   const [isEditing, setIsEditing] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        var user = JSON.parse(sessionStorage.getItem("data"));
 
-  const viTriOptions = [
-    "Web Developer",
-    "Mobile Developer",
-    "Backend",
-    "Frontend",
-  ];
-  const tinhThanhOptions = ["Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Quảng Nam"];
+        const info = await CandidateApi.getInfo(`/${user.id}`);
+        const tinhThanh = await AuthApi.getAllAuth(`all-city`);
+        const viTri = await AuthApi.getAllAuth(`all-position`);
+        const capDo = await AuthApi.getAllAuth(`all-level`);
+        setViTriOptions(viTri);
+        setTinhThanhOptions(tinhThanh);
+        setCapDoOptions(capDo);
+        setCandidate(info);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,22 +59,37 @@ const Profile = () => {
     }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0]; // Lấy file từ input
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setCandidate((prev) => ({
-          ...prev,
-          anhDaiDien: reader.result,
-        }));
-      };
-      reader.readAsDataURL(file);
+      try {
+   
+        const url = await uploadImage(file);
+        if (url) {
+          setCandidate((prev) => ({
+            ...prev,
+            anhDaiDien: url,
+          }));
+        } else {
+          toast.error("Có lỗi xảy ra khi tải ảnh lên.");
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        toast.error("Có lỗi xảy ra trong quá trình tải ảnh lên.");
+      }
     }
   };
 
   const toggleEdit = () => {
-    setIsEditing(!isEditing);
+    setIsEditing(true);
+  };
+
+  const saveData = async() => {
+    setIsEditing(false);
+    var user = JSON.parse(sessionStorage.getItem("data"));
+    await CandidateApi.updateInfo(`/${user.id}/update`, candidate)
+    const info = await CandidateApi.getInfo(`/${user.id}`);
+    setCandidate(info);
   };
 
   return (
@@ -75,6 +115,7 @@ const Profile = () => {
             <input
               type="text"
               name="ten"
+              required
               value={candidate.ten}
               onChange={handleChange}
               placeholder="Tên ứng viên"
@@ -86,50 +127,92 @@ const Profile = () => {
             </h2>
           )}
         </div>
+        <div>
+          {isEditing ? (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Vị Trí
+              </label>
+              <select
+                name="idViTri"
+                value={candidate.idViTri}
+                onChange={handleChange}
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              >
+                {viTriOptions.map((option) => (
+                  <option key={option.idViTri} value={option.idViTri}>
+                    {option.tenViTri}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <p className="text-xl flex flex-col items-center ">
+              {
+                viTriOptions.find(
+                  (option) => option.idViTri === candidate.idViTri
+                )?.tenViTri
+              }
+            </p>
+          )}
+        </div>
         <div className="mt-4 grid grid-cols-2 gap-4">
+          {/* Tỉnh thành */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Vị Trí
+              Tỉnh thành
             </label>
             {isEditing ? (
               <select
-                name="tenViTri"
-                value={candidate.tenViTri}
+                name="idTinhThanh"
+                value={candidate.idTinhThanh}
+                required
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               >
-                {viTriOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
+                {tinhThanhOptions.map((option) => (
+                  <option key={option.idTinhThanh} value={option.idTinhThanh}>
+                    {option.tenTinhThanh}
                   </option>
                 ))}
               </select>
             ) : (
-              <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-                {candidate.viTri}
+              <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                {
+                  tinhThanhOptions.find(
+                    (option) => option.idTinhThanh === candidate.idTinhThanh
+                  )?.tenTinhThanh
+                }
               </p>
             )}
           </div>
+
+          {/* Cấp độ */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Tỉnh Thành
+              Cấp độ
             </label>
             {isEditing ? (
               <select
-                name="tinhThanh"
-                value={candidate.tenTinhThanh}
+                name="idCapDo"
+                value={candidate.idCapDo}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               >
-                {tinhThanhOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
+                {capDoOptions.map((option) => (
+                  <option key={option.idCapDo} value={option.idCapDo}>
+                    {option.tenCapDo}
                   </option>
                 ))}
               </select>
             ) : (
-              <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-                {candidate.tenTinhThanh}
+              <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                {
+                  capDoOptions.find(
+                    (option) => option.idCapDo === candidate.idCapDo
+                  )?.tenCapDo
+                }
               </p>
             )}
           </div>
@@ -144,6 +227,7 @@ const Profile = () => {
               <input
                 type="email"
                 name="email"
+                required
                 value={candidate.email}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -155,44 +239,43 @@ const Profile = () => {
             )}
           </div>
           <div className="mt-4 grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Ngày Sinh
-            </label>
-            {isEditing ? (
-              <input
-                type="date"
-                name="ngaySinh"
-                value={candidate.ngaySinh}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              />
-            ) : (
-              <p className="mt-1 block w-full px-3 py-2 text-gray-600 border rounded-md shadow-sm">
-                {candidate.ngaySinh}
-              </p>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Ngày Sinh
+              </label>
+              {isEditing ? (
+                <input
+                  type="date"
+                  name="ngaySinh"
+                  value={candidate.ngaySinh}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+              ) : (
+                <p className="mt-1 block w-full px-3 py-2 text-gray-600 border rounded-md shadow-sm">
+                  {candidate.ngaySinh}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Số Điện Thoại
+              </label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="sdt"
+                  value={candidate.sdt}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+              ) : (
+                <p className="mt-1 block w-full px-3 py-2 text-gray-600 border rounded-md shadow-sm">
+                  {candidate.sdt}
+                </p>
+              )}
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Số Điện Thoại
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="sdt"
-                value={candidate.sdt}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              />
-            ) : (
-              <p className="mt-1 block w-full px-3 py-2 text-gray-600 border rounded-md shadow-sm">
-                {candidate.sdt}
-              </p>
-            )}
-          </div>
-          </div>
-         
         </div>
         <div className="mt-4 grid grid-cols-2 gap-4">
           <div>
@@ -200,16 +283,24 @@ const Profile = () => {
               Lương Bắt Đầu
             </label>
             {isEditing ? (
-              <input
-                name="luongbatdau"
-                value={candidate.luongBatDau}
-                type="number"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              ></input>
+              <div className="flex w-full jsutify-center items-center ">
+                <input
+                  name="luongBatDau"
+                  value={candidate.luongBatDau}
+                  onChange={handleChange}
+                  type="number"
+                  required
+                  className="mt-1  w-5/6 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                ></input>
+                <span className="w-1/6 px-2 font-bold" >VND</span>
+              </div>
             ) : (
-              <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-                {candidate.luongBatDau}
-              </p>
+              <div className="flex w-full jsutify-center items-center ">
+                <p className="mt-1  w-5/6  px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                  {candidate.luongBatDau}
+                </p>
+                <span className="w-1/6 px-2 font-bold">VND</span>
+              </div>
             )}
           </div>
           <div>
@@ -217,29 +308,44 @@ const Profile = () => {
               Lương Kết Thúc
             </label>
             {isEditing ? (
-              <input
-                name="luongKetThuc"
-                value={candidate.luonKetThuc}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              ></input>
+              <div className="flex w-full jsutify-center items-center ">
+                <input
+                  name="luongKetThuc"
+                  value={candidate.luongKetThuc}
+                  onChange={handleChange}
+                  type="number"
+                  required
+                  className="mt-1  w-5/6 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                ></input>
+                <span className="w-1/6 px-2 font-bold">VND</span>
+              </div>
             ) : (
-              <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-                {candidate.luonKetThuc}
-              </p>
+              <div className="flex w-full jsutify-center items-center ">
+                <p className="mt-1  w-5/6 px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                  {candidate.luongKetThuc}
+                </p>
+                <span className="w-1/6 px-2 font-bold">VND</span>
+              </div>
             )}
           </div>
         </div>
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={toggleEdit}
-            className={`px-4 py-2 text-white rounded-lg ${
-              isEditing
-                ? "bg-green-500 hover:bg-green-600"
-                : "bg-blue-500 hover:bg-blue-600"
-            }`}
-          >
-            {isEditing ? "Lưu" : "Chỉnh Sửa"}
-          </button>
+
+        <div className="mt-6 flex justify-end space-x-4">
+          {isEditing ? (
+            <button
+              onClick={saveData}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg"
+            >
+              Lưu
+            </button>
+          ) : (
+            <button
+              onClick={toggleEdit}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+            >
+              Chỉnh sửa
+            </button>
+          )}
         </div>
       </div>
     </div>

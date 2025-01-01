@@ -43,7 +43,7 @@ class AdminApi {
         headers: this.getAuthHeaders(),
         "Content-Type": "application/json",
       });
-      await toast.success(response.data.message);
+
       return response.data;
     } catch (error) {
       if (error.response) {
@@ -80,7 +80,7 @@ class AdminApi {
       const response = await this.apiClient.get(urlApi, {
         headers: this.getAuthHeaders(), // Use dynamic token here
       });
-      
+
       return response.data;
     } catch (error) {
       if (error.response) {

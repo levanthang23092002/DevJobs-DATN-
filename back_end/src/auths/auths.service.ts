@@ -74,6 +74,17 @@ export class AuthsService {
       throw new BadRequestException(error.message);
     }
   }
+  async getPostMany() {
+    try {
+      const allPost = await this.repoAuth.getPostMany();
+      if (!allPost) {
+        throw new BadRequestException('Không có bài đăng nào');
+      }
+      return allPost;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
   async getAllCandidate() {
     try {
       const allCandidate = await this.repoAuth.getAllCandidate();
@@ -81,6 +92,18 @@ export class AuthsService {
         throw new BadRequestException('Không có người dùng nào');
       }
       return allCandidate;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async getPost(id) {
+    try {
+      id = parseInt(id);
+      const allPost = await this.repoAuth.getPost(id);
+      if (!allPost) {
+        throw new BadRequestException('Không có bài đăng này');
+      }
+      return allPost;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -181,6 +204,33 @@ export class AuthsService {
           avatar: company.logo,
         },
       };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getCompany(id) {
+    try {
+      id = parseInt(id);
+      const company = await this.repoCompany.getCompany(id);
+      if (!company) {
+        throw new BadRequestException(`Không tìm thấy công ty id : ${id}`);
+      }
+      return company;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async getJobCompany(id) {
+    try {
+      id = parseInt(id);
+      const company = await this.repoCompany.getJobCompany(id);
+      if (!company) {
+        throw new BadRequestException(
+          `Không tìm thấy bài đăng nào của công ty : ${id}`,
+        );
+      }
+      return company;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

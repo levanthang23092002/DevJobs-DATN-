@@ -25,6 +25,36 @@ export class AdminController {
   async getTotalPost() {
     return await this.service.getCountPost();
   }
+  @Get('all-city')
+  async getallCity() {
+    return await this.service.getAllCity();
+  }
+  @Get('all-position')
+  async getallPosition() {
+    return await this.service.getAllPotion();
+  }
+  @Get('all-level')
+  async getallLevel() {
+    return await this.service.getAllLevel();
+  }
+  @Get('all-company')
+  async getallCompany() {
+    return await this.service.getAllCompany();
+  }
+  @Get('all-post')
+  async getAllPost() {
+    return await this.service.getAllPost();
+  }
+  @Get('post-many')
+  async getPostMany() {
+    return await this.service.getPostMany();
+  }
+
+  @Get('all-candidate')
+  async getallCandidate() {
+    return await this.service.getAllCandidate();
+  }
+
   @Put('/update/position')
   async updatePotion(@Body() dto: UpdatePositionDto) {
     return await this.service.updatePosition(dto);
@@ -40,7 +70,6 @@ export class AdminController {
 
   @Put('/update/post')
   async updatePost(@Body() dto: UpdateDto) {
-    console.log(dto);
     return await this.service.updatePost(dto);
   }
 

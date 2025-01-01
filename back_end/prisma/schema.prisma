@@ -19,7 +19,7 @@ datasource db {
 model LOAITAIKHOAN {
   idLoaiTK  Int         @id @default(autoincrement())
   quyen     String
-  moTa      String?
+  moTa      String?     @db.Text
   trangThai Int         @default(2)
   nguoiDung NGUOIDUNG[]
   congTy    CONGTY[]
@@ -29,9 +29,9 @@ model LOAITAIKHOAN {
 model NGUOIDUNG {
   idNguoiDung  Int      @id @default(autoincrement())
   idLoaiTK     Int
-  idViTri      Int
+  idViTri      Int?
   idTinhThanh  Int
-  idCapDo      Int
+  idCapDo      Int?
   ten          String
   ngaySinh     DateTime
   sdt          String
@@ -44,10 +44,10 @@ model NGUOIDUNG {
   anhDaiDien   String?
   xacThuc      Boolean  @default(false)
 
-  loaiTaiKhoan LOAITAIKHOAN  @relation(fields: [idLoaiTK], references: [idLoaiTK])
-  viTri        VITRIUNGTUYEN @relation(fields: [idViTri], references: [idViTri])
-  tinhThanh    TINHTHANH     @relation(fields: [idTinhThanh], references: [idTinhThanh])
-  capDo        CapDo         @relation(fields: [idCapDo], references: [idCapDo])
+  loaiTaiKhoan LOAITAIKHOAN   @relation(fields: [idLoaiTK], references: [idLoaiTK])
+  viTri        VITRIUNGTUYEN? @relation(fields: [idViTri], references: [idViTri])
+  tinhThanh    TINHTHANH      @relation(fields: [idTinhThanh], references: [idTinhThanh])
+  capDo        CapDo?         @relation(fields: [idCapDo], references: [idCapDo])
   hocVan       HOCVAN[]
   kinhNghiem   KINHNGHIEM[]
   duAn         DUAN[]
@@ -62,12 +62,15 @@ model VITRIUNGTUYEN {
   tenViTri  String
   trangThai String      @default("Đã Duyệt")
   nguoiDung NGUOIDUNG[]
+  BAIDANG   BAIDANG[]
 }
 
 model TINHTHANH {
   idTinhThanh  Int         @id @default(autoincrement())
   tenTinhThanh String
   trangThai    String      @default("Đã Duyệt")
+  viDo         Float @default(0)
+  kinhDo       Float @default(0)
   nguoiDung    NGUOIDUNG[]
   baiDang      BAIDANG[]
 }
@@ -75,18 +78,22 @@ model TINHTHANH {
 model CapDo {
   idCapDo   Int         @id @default(autoincrement())
   tenCapDo  String
-  moTa      String?
+  moTa      String?     @db.Text
   trangThai String      @default("Đã Duyệt")
+  mucDo     Int         @default(1)
   nguoiDung NGUOIDUNG[]
+  BAIDANG   BAIDANG[]
 }
 
 model HOCVAN {
-  idHocVan    Int     @id @default(autoincrement())
-  noiHoc      String
-  diaChi      String?
-  nganhHoc    String
-  diem        Float?
-  idNguoiDung Int
+  idHocVan        Int       @id @default(autoincrement())
+  noiHoc          String
+  diaChi          String?
+  nganhHoc        String
+  diem            Float?
+  thoiGianBatDau  DateTime?
+  thoiGianKetThuc DateTime?
+  idNguoiDung     Int
 
   nguoiDung NGUOIDUNG @relation(fields: [idNguoiDung], references: [idNguoiDung])
 }
@@ -96,21 +103,20 @@ model KINHNGHIEM {
   tenCongTy       String
   thoiGianBatDau  DateTime
   thoiGianKetThuc DateTime
-  diaChi          String?
-  moTa            String?
+  viTri           String?
+  moTa            String?  @db.Text
   idNguoiDung     Int
 
   nguoiDung NGUOIDUNG @relation(fields: [idNguoiDung], references: [idNguoiDung])
 }
 
 model DUAN {
-  idDuAn          Int      @id @default(autoincrement())
-  tenDuAn         String
-  thoiGianBatDau  DateTime
-  thoiGianKetThuc DateTime
-  congNghe        String
-  link            String?
-  idNguoiDung     Int
+  idDuAn      Int     @id @default(autoincrement())
+  tenDuAn     String
+  congNghe    String
+  link        String?
+  moTa        String? @db.Text
+  idNguoiDung Int
 
   nguoiDung NGUOIDUNG @relation(fields: [idNguoiDung], references: [idNguoiDung])
 }
@@ -128,7 +134,7 @@ model KYNANG {
 model LoaiKN {
   idLoaiKN  Int      @id @default(autoincrement())
   tenKyNang String
-  moTa      String?
+  moTa      String?  @db.Text
   kyNang    KYNANG[]
 }
 
@@ -137,6 +143,7 @@ model CHUNGCHI {
   tenChungChi String
   link        String?
   donViCap    String?
+  ketQua      String?
   idNguoiDung Int
 
   nguoiDung NGUOIDUNG @relation(fields: [idNguoiDung], references: [idNguoiDung])
@@ -159,9 +166,10 @@ model THONGBAO {
 model BAIDANG {
   idBaiDang    Int      @id @default(autoincrement())
   idCongTy     Int
-  idTinhThanh  Int
+  idTinhThanh  Int      @default(2)
+  idCapDo      Int      @default(2)
+  idViTri      Int      @default(2)
   tenBaiDang   String
-  viTri        String
   soLuong      Int
   trangThai    String   @default("Chờ Duyệt")
   hinhAnh      String?
@@ -171,10 +179,13 @@ model BAIDANG {
   ngayDang     DateTime
   ngaySua      DateTime
   diaChiCuThe  String?
-  moTa         String?
+  moTa         String?  @db.Text
 
-  congTy     CONGTY        @relation(fields: [idCongTy], references: [idCongTy])
-  tinhThanh  TINHTHANH     @relation(fields: [idTinhThanh], references: [idTinhThanh])
+  congTy    CONGTY        @relation(fields: [idCongTy], references: [idCongTy])
+  tinhThanh TINHTHANH     @relation(fields: [idTinhThanh], references: [idTinhThanh])
+  capDo     CapDo         @relation(fields: [idCapDo], references: [idCapDo])
+  viTri     VITRIUNGTUYEN @relation(fields: [idViTri], references: [idViTri])
+
   danhSachUV DANHSACH_UV[]
   thongBao   THONGBAO[]
   yeuCau     YeuCau[]
@@ -189,10 +200,14 @@ model YeuCau {
 }
 
 model DANHSACH_UV {
-  idBaiDang   Int
-  idNguoiDung Int
-  thoiGianNop DateTime
-  trangThai   String   @default("Chờ Duyệt")
+  idBaiDang    Int
+  idNguoiDung  Int
+  thoiGianNop  DateTime
+  trangThai    String   @default("Chờ Duyệt")
+  thoiBatDau   String?
+  kieuPhongVan String?
+  diaChi       String?
+  link         String?
 
   baiDang   BAIDANG   @relation(fields: [idBaiDang], references: [idBaiDang])
   nguoiDung NGUOIDUNG @relation(fields: [idNguoiDung], references: [idNguoiDung])
@@ -213,7 +228,7 @@ model CONGTY {
   logo            String?
   trangThai       String   @default("Chờ Duyệt")
   ngayThanhLap    DateTime
-  moTa            String?
+  moTa            String?  @db.Text
   matKhau         String
   xacThuc         Boolean  @default(false)
 

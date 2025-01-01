@@ -13,6 +13,7 @@ import { CandidateAdminRepository } from './reponsitory/Candidate.repo';
 import { AddAdminDto, ChangePasswordDto, UpdateAdminDto } from './dto/admin';
 import { AdminRepository } from './reponsitory/admin.repo';
 import * as bcrypt from 'bcrypt';
+import { AdminGateway } from './reponsitory/admin.gateway';
 
 @Injectable()
 export class AdminService {
@@ -22,6 +23,7 @@ export class AdminService {
     private readonly repoPost: PostAdminRepository,
     private readonly repoCandidate: CandidateAdminRepository,
     private readonly repoAdmin: AdminRepository,
+    private readonly repoAdminGateway: AdminGateway,
   ) {}
   async getCountUser() {
     const totall = await this.repoAuth.countUser();
@@ -40,6 +42,84 @@ export class AdminService {
     return {
       totall,
     };
+  }
+
+  async getAllCity() {
+    try {
+      const allCity = await this.repoAuth.getAllCity();
+      if (!allCity) {
+        throw new BadRequestException('Không có Tỉnh Thành nào');
+      }
+      return allCity;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async getAllPotion() {
+    try {
+      const allPosition = await this.repoAuth.getAllPosition();
+      if (!allPosition) {
+        throw new BadRequestException('Không có Vị Tri Ứng Tuyển nào');
+      }
+      return allPosition;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async getAllLevel() {
+    try {
+      const allPosition = await this.repoAuth.getAllLevel();
+      if (!allPosition) {
+        throw new BadRequestException('Không có Level nào');
+      }
+      return allPosition;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async getAllCompany() {
+    try {
+      const allCompany = await this.repoAuth.getAllCompany();
+      if (!allCompany) {
+        throw new BadRequestException('Không có công ty nào');
+      }
+      return allCompany;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async getAllPost() {
+    try {
+      const allPost = await this.repoAuth.getAllPost();
+      if (!allPost) {
+        throw new BadRequestException('Không có bài đăng nào');
+      }
+      return allPost;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async getPostMany() {
+    try {
+      const allPost = await this.repoAuth.getPostMany();
+      if (!allPost) {
+        throw new BadRequestException('Không có bài đăng nào');
+      }
+      return allPost;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async getAllCandidate() {
+    try {
+      const allCandidate = await this.repoAuth.getAllCandidate();
+      if (!allCandidate) {
+        throw new BadRequestException('Không có người dùng nào');
+      }
+      return allCandidate;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
   // update manager
   async updatePosition(dto: UpdatePositionDto) {
@@ -123,6 +203,7 @@ export class AdminService {
       if (!updatePost) {
         throw new BadRequestException('Cập nhật không thành công');
       }
+      await this.repoAdminGateway.sendUpdatePost(updatePost);
       return {
         status: 200,
         message: 'Cập nhật thành Công',

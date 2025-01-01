@@ -1,127 +1,28 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import tuyendung from "../../assets/image/tuyendung.png";
+import AuthApi from "../../api/auth/auth";
 
-const company = {
-  idCongTy: 10,
-  tenCongTy: "Công ty TNHH Xuất Nhập Khẩu Việt",
-  diaChi: "707 Đường J, Quảng Ninh",
-  email: "export@vietxuatnhapkhau.com",
-  sDT: "0444455566",
-  linkWeb: "https://vietxuatnhapkhau.com",
-  nganhNghe: "Xuất nhập khẩu",
-  soLuongNhanVien: 70,
-  logo: "https://via.placeholder.com/50",
-  trangThai: "Hoạt động",
-  ngayThanhLap: "2013-06-18",
-  moTa: "Chuyên xuất nhập khẩu hàng hóa.",
-  id_loaiTaiKhoan: 3,
 
-  ngayTao: "2024-12-13",
-};
-const jobList = [
-  {
-    idbaiDang: 1,
-    tenBaiDang: "R/Shiny Developer",
-    idCongTy: 101,
-    tenCongTy: "Appslion",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "R/Shiny Developer",
-    hanChot: "2024-12-30",
-    tinhThanh: "Poland",
-    soLuong: 5,
-  },
-  {
-    idbaiDang: 2,
-    tenBaiDang: "Back End Developer",
-    idCongTy: 102,
-    tenCongTy: "Brillio",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Backend Developer",
-    hanChot: "2024-12-25",
-    tinhThanh: "Mexico",
-    soLuong: 3,
-  },
-  {
-    idbaiDang: 3,
-    tenBaiDang: "Product Development Engineer",
-    idCongTy: 103,
-    tenCongTy: "Pixelle",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Product Engineer",
-    hanChot: "2024-12-28",
-    tinhThanh: "United States",
-    soLuong: 7,
-  },
-  {
-    idbaiDang: 4,
-    tenBaiDang: "Frontend Architect",
-    idCongTy: 104,
-    tenCongTy: "Wix",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Frontend Architect",
-    hanChot: "2024-12-22",
-    tinhThanh: "Israel",
-    soLuong: 2,
-  },
-  {
-    idbaiDang: 5,
-    tenBaiDang: "Solutions Architect",
-    idCongTy: 105,
-    tenCongTy: "Sopra Steria",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Solutions Architect",
-    hanChot: "2024-12-26",
-    tinhThanh: "France",
-    soLuong: 4,
-  },
-  {
-    idbaiDang: 6,
-    tenBaiDang: "Web Design Developer",
-    idCongTy: 106,
-    tenCongTy: "Hitachi",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Web Design Developer",
-    hanChot: "2024-12-20",
-    tinhThanh: "India",
-    soLuong: 6,
-  },
-  {
-    idbaiDang: 7,
-    tenBaiDang: "Business Developer",
-    idCongTy: 107,
-    tenCongTy: "team.blue",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Business Developer",
-    hanChot: "2024-12-18",
-    tinhThanh: "Netherlands",
-    soLuong: 8,
-  },
-  {
-    idbaiDang: 8,
-    tenBaiDang: "Creative Tech Developer",
-    idCongTy: 108,
-    tenCongTy: "Devoteam",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Web Developer",
-    hanChot: "2024-12-15",
-    tinhThanh: "France",
-    soLuong: 3,
-  },
-  {
-    idbaiDang: 9,
-    tenBaiDang: "Senior Backend Developer",
-    idCongTy: 109,
-    tenCongTy: "Xyz Tech",
-    logoCongTy: "https://via.placeholder.com/40",
-    viTri: "Backend Developer",
-    hanChot: "2024-12-22",
-    tinhThanh: "Germany",
-    soLuong: 4,
-  },
-];
 const CompanyDetail = () => {
-  const [visibleJobs, setVisibleJobs] = useState(4); // Hiển thị 4 công việc ban đầu
+  const [visibleJobs, setVisibleJobs] = useState(4);
+  const [company, setCompany] = useState({});
+  const [jobList, setJobList] = useState({});
+  const { idCompany } = useParams();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const company = await AuthApi.getAllAuth(`/company/${idCompany}`);
+        const jobList = await AuthApi.getAllAuth(`/company/${idCompany}/job`);
+        setCompany(company);
+        setJobList(jobList);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleLoadMore = () => {
     setVisibleJobs((prev) => Math.min(prev + 4, jobList.length)); // Tăng thêm 4 hoặc đến khi hết danh sách
@@ -129,13 +30,13 @@ const CompanyDetail = () => {
   return (
     <div className="flex container">
       <div className="w-4/6">
-        <div className=" min-h-screen py-8 px-4">
-          <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden mb-6">
-            <div className="flex items-center   px-6 py-4">
+        <div className=" min-h-screen p-8">
+          <div className="max-w-4xl mx-auto p-4 bg-white shadow-lg rounded-lg overflow-hidden mb-6">
+            <div className="flex items-center px-6 py-4">
               <img
                 src={company.logo}
                 alt={company.tenCongTy}
-                className="w-32 h-32  mr-4"
+                className="w-48 h-auto  mr-4"
               />
               <div>
                 <h1 className="text-2xl font-bold">
@@ -157,37 +58,41 @@ const CompanyDetail = () => {
                 <h2 className="text-xl font-semibold text-gray-700">
                   Thông tin cơ bản
                 </h2>
-                <div className="grid grid-cols-2 gap-4 mt-2">
-                  <div className="flex">
-                    <p className="font-medium m-0 ">Địa chỉ:</p>
-                    <p className="m-0">{company.diaChi}</p>
+                <div className="grid grid-cols-2 p-2 mt-2">
+                  <div className="flex ">
+                    <p className="font-medium m-0  pr-2 py-1 ">Địa chỉ:</p>
+                    <p className="m-0 px-0 py-1">{company.diaChi}</p>
                   </div>
-                  <div className="flex">
-                    <p className="font-medium">Email:</p>
-                    <p className="m-0">{company.email}</p>
+                  <div className="flex ">
+                    <p className="font-medium m-0  pr-2 py-1">Email:</p>
+                    <p className="m-0 px-0 py-1">{company.email}</p>
                   </div>
-                  <div className="flex">
-                    <p className="font-medium m-0">Ngày thành lập:</p>
-                    <p className="m-0">
+                  <div className="flex ">
+                    <p className="font-medium m-0  pr-2 py-1">
+                      Ngày thành lập:
+                    </p>
+                    <p className="m-0 px-0 py-1">
                       {new Date(company.ngayThanhLap).toLocaleDateString()}
                     </p>
                   </div>
-                  <div className="flex">
-                    <p className="font-medium m-0">Số điện thoại:</p>
-                    <p className="m-0">{company.sDT}</p>
+                  <div className="flex ">
+                    <p className="font-medium m-0 pr-2 py-1">Số điện thoại:</p>
+                    <p className="m-0 px-0 py-1">{company.sDT}</p>
                   </div>
 
-                  <div className="flex">
-                    <p className="font-medium m-0">Số lượng nhân viên: </p>
-                    <p className="m-0"> {company.soLuongNhanVien}</p>
+                  <div className="flex ">
+                    <p className="font-medium m-0 pr-2 py-1">
+                      Số lượng nhân viên:{" "}
+                    </p>
+                    <p className="m-0 px-0 py-1"> {company.soLuongNhanVien}</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-700">
-                    Liên kết
+                <div className=" flex">
+                  <h2 className="text-xl pr-4 font-semibold text-gray-700">
+                    Liên kết:
                   </h2>
                   <a
                     href={company.linkWeb}
@@ -201,7 +106,7 @@ const CompanyDetail = () => {
                 <h2 className="text-xl font-semibold text-gray-700">
                   Mô tả công ty
                 </h2>
-                <p className="mt-2 text-gray-600">{company.moTa}</p>
+                <p className="mt-2 p-2 text-gray-600">{company.moTa}</p>
               </div>
             </div>
           </div>
@@ -210,29 +115,44 @@ const CompanyDetail = () => {
             {jobList.length > 0 ? (
               jobList.slice(0, visibleJobs).map((job) => (
                 <div
-                  key={job.idbaiDang}
+                  key={job.idBaiDang}
                   className="border-2 px-4 py-3 rounded-lg shadow-md relative"
                 >
                   <div className="flex items-center space-x-3">
                     <img
-                      src={job.logoCongTy}
+                      src={job.logo}
                       alt={job.tenCongTy}
-                      className="rounded-full"
+                      className=" w-16 h-auto"
                     />
                     <div>
                       <p className="font-semibold m-0">{job.tenCongTy}</p>
                     </div>
                   </div>
                   {/* Hạn chót ở góc trên bên phải */}
-                  <p className="absolute top-6 right-4 text-sm">
-                    Deadline: {job.hanChot}
+                  <p className="absolute top-2 text-red-500 right-4 text-sm">
+                    {(() => {
+                      const today = new Date(); // Ngày hiện tại
+                      const deadline = new Date(job.hanChot); // Ngày hết hạn
+                      if (deadline < today) {
+                        return "Hết hạn";
+                      } else if (
+                        deadline.getFullYear() === today.getFullYear() &&
+                        deadline.getMonth() === today.getMonth() &&
+                        deadline.getDate() === today.getDate()
+                      ) {
+                        return "Hôm nay";
+                      } else {
+                        return `Hạn nộp: ${job.hanChot}`;
+                      }
+                    })()}
                   </p>
+
                   <p className="text-base font-bold p-2 m-0">
                     {job.tenBaiDang}
                   </p>
                   <p className="text-sm px-2 m-0">{job.viTri}</p>
                   <Link
-                    to={`/job/${job.idbaiDang}`}
+                    to={`/job/${job.idBaiDang}`}
                     className="color-item hover:no-underline hover:text-[#0cc0df]"
                   >
                     <p className="text-sm px-2 m-0 text-right">Xem chi tiết</p>
@@ -240,10 +160,10 @@ const CompanyDetail = () => {
                 </div>
               ))
             ) : (
-              <div>Chưa có Bài Ứng Tuyển</div>
+              <div className=" text-lg text-red-500">
+                Chưa có bài ứng tuyển!
+              </div>
             )}
-
-         
           </div>
           {visibleJobs < jobList.length && (
             <div className="flex text-center justify-center mt-4">

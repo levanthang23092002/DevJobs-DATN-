@@ -1,50 +1,50 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import { AiOutlineMail } from "react-icons/ai";
 import { SlPhone } from "react-icons/sl";
 import { TbWorld } from "react-icons/tb";
-
 import AuthApi from "../../api/auth/auth";
+import CandidateApi from "../../api/user/candidate";
+import io from "socket.io-client";
 
-const jobList = await AuthApi.getAllAuth("/all-post");
-
-const job = {
-  id_baiDang: 1,
-  logo: "https://via.placeholder.com/40",
-  tenCongTy: "Công Ty ABC",
-  nganhNghe: "Công Nghệ",
-  linkWeb: "abc.com",
-  tenBaiDang: "Tuyển Dụng Lập Trình Viên",
-  viTri: "Lập Trình Viên",
-  soLuong: 5,
-  trangThai: "Chờ Duyệt",
-  hinhAnh: "https://via.placeholder.com/100",
-  luongBatDau: 10000000,
-  luongKetThuc: 20000000,
-  hanChot: "2024-12-31",
-  ngayDang: "2024-12-01",
-  ngaySua: "2024-12-03",
-  diaChiCuThe: "123 Đường A",
-  tinhThanh: "Đà Nẵng",
-  moTa: "abcd ",
-  yeuCau: [
-    {
-      id: 1,
-      noidung: "tiếng anh",
-    },
-    {
-      id: 2,
-      noidung: "Đã tốt nghiệp",
-    },
-  ],
-};
+const socket = io("http://localhost:5000");
 
 function ViewJob() {
+  const [job, setJob] = useState({});
+  const [jobList, setJobList] = useState([]);
+  var user = JSON.parse(sessionStorage.getItem("data")) || {
+    quyen: null,
+  };
+  const { idJob } = useParams();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const job = await AuthApi.getAllAuth(`/post/${idJob}`);
+        const jobList = await AuthApi.getAllAuth("/post-many");
+        setJob(job);
+        setJobList(jobList);
+        socket.on("update_post_company", async (post) => {
+          const job = await AuthApi.getAllAuth(`/post/${idJob}`);
+          setJob(job);
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  const handleApply = async () => {
+    var user = JSON.parse(sessionStorage.getItem("data"));
+    await CandidateApi.AddInfo(`/${user.id}/apply/${idJob}`);
+    await CandidateApi.AddInfo(`/${user.id}/add-notifycation/${idJob}`);
+    
+  };
+
   return (
     <div className="container flex ">
       <div className="flex w-full p-12 ">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden w-4/6">
-          {/* Hình ảnh bìa */}
           <div className="relative">
             <img
               src={job.hinhAnh}
@@ -53,10 +53,8 @@ function ViewJob() {
             />
           </div>
 
-          {/* Nội dung chính */}
           <div className="p-6">
-            {/* Tiêu đề */}
-            <div className="flex justify-between">
+            <div className="flex justify-between m-0">
               <div className="flex">
                 <img
                   src={job.logo}
@@ -67,25 +65,28 @@ function ViewJob() {
                   <h2 className="text-xl font-bold color-item">
                     {job.tenBaiDang} tại - {job.tenCongTy}
                   </h2>
-                  <p className="text-sm text-gray-500">{job.nganhNghe}</p>
+                  <p className="text-sm m-0 text-gray-500">{job.nganhNghe}</p>
                 </div>
               </div>
               <div className="justify-between items-center">
                 <p>
                   <i className="p-2 text-sm color-item">
                     <strong>Hạn Chốt: </strong>
-                    {job.hanChot}
+                    {job.hanChot && new Date(job.hanChot) < new Date() ? (
+                      <span className="text-red-500">Hết hạn</span>
+                    ) : (
+                      job.hanChot
+                    )}
                   </i>
                 </p>
                 <p className="px-2 py-1 text-xs font-medium inline-block rounded-full bg-color-item text-white">
-                  {job.tinhThanh}
+                  {job.tenTinhThanh}
                 </p>
               </div>
             </div>
 
-            {/* Lương */}
-            <div className="flex items-center justify-between">
-              <p className="text-lg font-semibold text-green-600">
+            <div className="flex items-center m-0 justify-between ">
+              <p className="text-lg font-semibold m-0 text-green-600">
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
@@ -97,52 +98,45 @@ function ViewJob() {
                 }).format(job.luongKetThuc)}
               </p>
             </div>
-            <div className="text-sm text-gray-600 mt-2">
-              <p>
-                <strong className="text-lg font-semibold text-gray-800">
-                  Mô tả:{" "}
-                </strong>
-                {job.moTa}
+            <div className="text-sm text-gray-600 my-2">
+              <p className="m-0">
+                <strong>Địa Chỉ Cụ thể:</strong> {job.diaChiCuThe},{" "}
+                {job.tinhThanh}
               </p>
             </div>
 
-            {/* Thông tin tuyển dụng */}
-            <div className="flex justify-between">
-              <div>
+            <div className="flex justify-between justify-center">
+              <div className="w-1/3 p-1">
                 <h3 className=" text-lg font-semibold text-gray-800">
                   Thông Tin Tuyển Dụng
                 </h3>
-                <div className="text-sm text-gray-600 space-y-2 mt-2">
-                  <p>
-                    <strong>Vị Trí:</strong> {job.viTri}
+                <div className="text-base text-gray-600 space-y-2 mt-2">
+                  <p className="m-1">
+                    <strong>Vị Trí:</strong> {job.tenViTri}
                   </p>
-                  <p>
+                  <p className="m-1">
+                    <strong>Cấp Độ:</strong> {job.tenCapDo}
+                  </p>
+                  <p className="m-1">
                     <strong>Số lượng cần tuyển:</strong> {job.soLuong} người
-                  </p>
-                  <p>
-                    <strong>Nơi làm việc:</strong> {job.diaChiCuThe},{" "}
-                    {job.tinhThanh}
-                  </p>
-                  <p>
-                    <strong>Hạn nộp:</strong> {job.hanChot}
                   </p>
                 </div>
               </div>
-              <div>
+              <div className="w-1/3 p-1 ">
                 <h3 className=" text-lg font-semibold text-gray-800">
                   Yêu Cầu Công Việc
                 </h3>
-                <ul className="list-disc list-inside text-sm text-gray-600 mt-2">
-                  {job.yeuCau.map((item) => (
-                    <li key={item.id}>{item.noidung}</li>
+                <ul className="list-disc list-inside  text-gray-600 mt-2">
+                  {job.yeuCau?.map((item) => (
+                    <li key={item.idYeuCau}>{item.noiDung}</li>
                   ))}
                 </ul>
               </div>
-              <div>
+              <div className="">
                 <h3 className="text-lg font-semibold text-gray-800">
                   Liên Lạc
                 </h3>
-                <div className="text-sm text-gray-600 space-y-2 mt-2">
+                <div className="text-gray-600 space-y-2 mt-2">
                   <p className="flex items-center space-x-2">
                     <AiOutlineMail className="text-lg text-gray-600" />
                     <span className="text-sm text-gray-800">{job.email}</span>
@@ -158,6 +152,29 @@ function ViewJob() {
                 </div>
               </div>
             </div>
+            <div className="text-sm text-gray-600 mt-2">
+              <p>
+                <strong className="text-lg font-semibold text-gray-800">
+                  Mô tả:{" "}
+                </strong>
+                {job.moTa}
+              </p>
+            </div>
+          </div>
+          <div className="relative">
+            {user &&
+              user.quyen === "User" &&
+              job.hanChot &&
+              new Date(job.hanChot) >= new Date() && (
+                <div>
+                  <button
+                    onClick={handleApply}
+                    className="bg-green-500 text-white py-2 px-4 rounded-lg absolute bottom-4 right-2"
+                  >
+                    Nộp CV
+                  </button>
+                </div>
+              )}
           </div>
         </div>
         <div className="w-2/6 px-4 py-2">
@@ -170,7 +187,6 @@ function ViewJob() {
                 key={jobItem.idBaiDang}
                 className="bg-white rounded-lg shadow-lg px-4 py-2"
               >
-                {/* Phần logo và tên công ty */}
                 <div className="flex items-center">
                   <img
                     src={jobItem.logo}
@@ -187,19 +203,17 @@ function ViewJob() {
                   </div>
                 </div>
 
-                {/* Thông tin tỉnh thành và vị trí */}
                 <div className="flex justify-between m-0">
                   <p className="text-sm text-gray-600 truncate">
                     {jobItem.tenTinhThanh}
                   </p>
                   <p className="text-sm text-gray-600 truncate">
-                    {jobItem.viTri}
+                    {jobItem.tenViTri}
                   </p>
                 </div>
 
-                {/* Liên kết xem chi tiết công việc */}
                 <Link
-                  to={`/job/${jobItem.idBaiDang}`} // Đường dẫn chi tiết công việc
+                  to={`/job/${jobItem.idBaiDang}`}
                   className="color-item hover:text-red-600 mt-2 block "
                 >
                   Xem chi tiết

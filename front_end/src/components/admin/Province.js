@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { FaEdit } from "react-icons/fa"; // Icon từ react-icons
 import { MdAddCircle } from "react-icons/md"; // Icon khác nếu cần
-import AuthApi from "../../api/auth/auth";
+
 import AdminApi from "../../api/admin/admin";
 
-const province = await AuthApi.getAllAuth("/all-city");
+const province = await AdminApi.getAdmin("/all-city");
 
 const ProvinceManagement = () => {
   const [provinces, setProvinces] = useState(province);
@@ -42,7 +42,7 @@ const ProvinceManagement = () => {
     };
     console.log(data);
     await AdminApi.getUpdateManager("/update/province", data);
-    await AuthApi.getAllAuth("/all-city").then((res) => {
+    await AdminApi.getAdmin("/all-city").then((res) => {
       setEditingId(res);
     });
   };
@@ -61,7 +61,7 @@ const ProvinceManagement = () => {
         ten: newProvince.tenTinhThanh.trim(),
       };
       await AdminApi.AddManager("add/province", data);
-      const province = await AuthApi.getAllAuth("/all-city");
+      const province = await AdminApi.getAdmin("/all-city");
       setProvinces(province);
       setIsAdding(false);
     }

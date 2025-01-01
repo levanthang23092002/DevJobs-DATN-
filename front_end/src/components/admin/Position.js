@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { MdAddCircle } from "react-icons/md";
-import AuthApi from "../../api/auth/auth";
+
 import AdminApi from "../../api/admin/admin";
 
-const position = await AuthApi.getAllAuth("/all-position");
+const position = await AdminApi.getAdmin("/all-position");
 const PositionManager = () => {
   const [positions, setPositions] = useState(position);
 
@@ -36,7 +36,7 @@ const PositionManager = () => {
       idViTri: idViTri,
     };
     await AdminApi.getUpdateManager("/update/position", data);
-    await AuthApi.getAllAuth("/all-position").then((res) => {
+    await AdminApi.getAdmin("/all-position").then((res) => {
       setPositions(res);
     });
 
@@ -60,7 +60,7 @@ const PositionManager = () => {
         ten: newPosition.tenViTri.trim(),
       };
       await AdminApi.AddManager("add/position", data);
-      const position = await AuthApi.getAllAuth("/all-position");
+      const position = await AdminApi.getAdmin("/all-position");
       setIsAdding(false);
       setPositions(position)
     }
@@ -119,9 +119,9 @@ const PositionManager = () => {
                     </h2>
                     <span
                       className={`px-2 py-1 text-xs rounded-full ${
-                        position.trangThai == "Đã Duyệt"
+                        position.trangThai === "Đã Duyệt"
                           ? "bg-green-100 text-green-500"
-                          : position.trangThai == "Đã Khóa"
+                          : position.trangThai === "Đã Khóa"
                           ? "bg-red-100 text-red-500"
                           : "bg-blue-100 text-blue-500"
                       }`}

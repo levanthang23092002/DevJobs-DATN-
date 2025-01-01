@@ -1,51 +1,64 @@
-import { IoMdClose } from "react-icons/io";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlineMail } from "react-icons/ai";
 import { SlPhone } from "react-icons/sl";
 import { TbWorld } from "react-icons/tb";
-import AuthApi from "../../api/auth/auth";
+import { IoMdClose } from "react-icons/io";
 import AdminApi from "../../api/admin/admin";
+import io from 'socket.io-client';
 
-const posts = await AuthApi.getAllAuth("/all-post");
+const socket = io('http://localhost:5000'); 
 
 const PostManagement = () => {
   const statusOptions = ["Sửa", "Duyệt", "Hủy", "Khóa"];
-  const [post, setPost] = useState(posts);
+  const [post, setPost] = useState([]);
   const [currentPost, setCurrentPost] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await AdminApi.getAdmin("/all-post");
+        setPost(data);
+        socket.on('new_post', (post) => {
+          setPost((prevPosts) => [post, ...prevPosts]);
+      });
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const itemsPerPage = 5;
   const totalPages = Math.ceil(post.length / itemsPerPage);
 
- const handleStatusChange = async (id, newStatus) => {
-  // Xác định trạng thái mới
-  const newTrangThai =
-    newStatus === "Duyệt"
-      ? "Đã Duyệt"
-      : newStatus === "Hủy"
-      ? "Đã Hủy"
-      : "Đã Khóa";
+  const handleStatusChange = async (id, newStatus) => {
+    // Xác định trạng thái mới
+    const newTrangThai =
+      newStatus === "Duyệt"
+        ? "Đã Duyệt"
+        : newStatus === "Hủy"
+        ? "Đã Hủy"
+        : "Đã Khóa";
 
-  const updatedPost = post.map((post) =>
-    post.idNguoiDung === id
-      ? { ...post, trangThai: newTrangThai }
-      : post
-  );
-  setPost(updatedPost);
-  const payload = {
-    idUpdate: id,
-    trangThai: newTrangThai,
+    const updatedPost = post.map((post) =>
+      post.idNguoiDung === id ? { ...post, trangThai: newTrangThai } : post
+    );
+    setPost(updatedPost);
+    const payload = {
+      idUpdate: id,
+      trangThai: newTrangThai,
+    };
+
+    try {
+      await AdminApi.getUpdateManager("update/post", payload);
+      const res = await AdminApi.getAdmin("/all-post");
+      setPost(res);
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
   };
-
-  try {
-    await AdminApi.getUpdateManager("update/post", payload);
-    const res = await AuthApi.getAllAuth("/all-post");
-    setPost(res);
-  } catch (error) {
-    console.error("Error updating status:", error);
-  }
-};
-
 
   const startIndex = (currentPost - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;

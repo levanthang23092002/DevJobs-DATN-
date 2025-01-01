@@ -7,6 +7,7 @@ import { CompanyAdminRepository } from './reponsitory/company.repo';
 import { CandidateAdminRepository } from './reponsitory/Candidate.repo';
 import { PostAdminRepository } from './reponsitory/post.repo';
 import { AdminRepository } from './reponsitory/admin.repo';
+import { AdminGateway } from './reponsitory/admin.gateway';
 
 @Module({
   controllers: [AdminController],
@@ -18,6 +19,7 @@ import { AdminRepository } from './reponsitory/admin.repo';
     PostAdminRepository,
     CandidateAdminRepository,
     AdminRepository,
+    AdminGateway,
   ],
 })
 export class AdminModule implements NestModule {

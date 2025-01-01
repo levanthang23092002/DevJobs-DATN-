@@ -1,11 +1,12 @@
 import { IoMdClose } from "react-icons/io";
 import React, { useState } from "react";
-import AuthApi from "../../api/auth/auth";
 import AdminApi from "../../api/admin/admin";
-const business = await AuthApi.getAllAuth("/all-company");
+
+const business = await AdminApi.getAdmin("/all-company");
 
 const statusOptions = ["Sửa", "Duyệt", "Hủy", "Khóa"];
 const BusinessManagement = () => {
+  console.log(business);
   const [businesses, setBusinesses] = useState(business);
   const [currentBusiness, setCurrentBusiness] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,7 +40,8 @@ const BusinessManagement = () => {
     };
 
     await AdminApi.getUpdateManager("update/company", data);
-    await AuthApi.getAllAuth("/all-company").then((res) => {
+    await AdminApi.getAdmin("/all-company").then((res) => {
+     
       setBusinesses(res);
     });
   };

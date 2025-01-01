@@ -1,94 +1,295 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import CompanyApi from "../../api/company/company";
+import { FaStar } from "react-icons/fa";
 
 const CandidateList = ({ candidates, setCandidates }) => {
-  const [filterStatus, setFilterStatus] = useState(3); // Mặc định là "Tất cả"
-
-  // Thay đổi trạng thái của ứng viên
-  const handleStatusChange = (id, newStatus) => {
-    const updatedCandidates = candidates.map((candidate) => {
-      alert(id === candidate.idNguoiDung);
-      if (candidate.idNguoiDung == id) {
-        candidate.idTrangThai = newStatus;
-        alert(candidate.idTrangThai);
-      }
-
-      return candidate;
-    });
-  
-
-    setCandidates(updatedCandidates);
+  const [filterStatus, setFilterStatus] = useState("Tất cả");
+  const { idJob } = useParams();
+  const [showInterviewForm, setShowInterviewForm] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [formData, setFormData] = useState({
+    startTime: "",
+    interviewType: "Online",
+    interviewLink: "",
+    interviewAddress: "",
+  });
+  const [submittedData, setSubmittedData] = useState(null);
+  const [showSchedule, setShowSchedule] = useState(false);
+  // Hàm để hiển thị form khi duyệt ứng viên
+  const handleApproveClick = (candidate) => {
+    setSelectedCandidate(candidate);
+    setShowInterviewForm(true);
   };
 
-  // Lọc danh sách ứng viên theo trạng thái
+  // Hàm để thay đổi giá trị trong form
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(selectedCandidate.idNguoiDung);
+
+    const data = {
+      newStatus: "Đã Duyệt",
+      startTime: formData.startTime,
+      interviewType: formData.interviewType,
+      interviewLink: formData.interviewLink,
+      interviewAddress: formData.interviewAddress,
+    };
+    await handleStatusChange(selectedCandidate, data);
+    setShowInterviewForm(false);
+  };
+
+  // Thay đổi trạng thái của ứng viên
+  const handleStatusChange = async (idND, newStatus) => {
+    const data = {
+      newStatus: newStatus,
+      startTime: formData.startTime,
+      interviewType: formData.interviewType,
+      interviewLink: formData.interviewLink,
+      interviewAddress: formData.interviewAddress,
+    };
+    await CompanyApi.updateInfo(
+      `job/${idJob}/update-status/candidate/${idND}`,
+      data
+    );
+    const listCandidate = await CompanyApi.getInfo(`all-candidate/${idJob}`);
+    setCandidates(listCandidate);
+  };
+
+  const handleStarClick = async (idND, currentStatus) => {
+    const newStatus = currentStatus === "Chờ Duyệt" ? "Đã Note" : "Chờ Duyệt";
+    const data = {
+      newStatus: newStatus,
+    };
+    await CompanyApi.updateInfo(
+      `job/${idJob}/update-note/candidate/${idND}`,
+      data
+    );
+    const listCandidate = await CompanyApi.getInfo(`all-candidate/${idJob}`);
+    setCandidates(listCandidate);
+  };
+  const handleViewSchedule = async (idND) => {
+    const data = await CompanyApi.getInfo(
+      `job/${idJob}/view-schedule/candidate/${idND}`
+    );
+    setSubmittedData(data);
+    setShowSchedule(true);
+  };
   const filteredCandidates =
-    filterStatus === 3 // Nếu filterStatus là 3 ("Tất cả"), không lọc
+    filterStatus === "Tất cả"
       ? candidates
-      : candidates.filter(
-          (candidate) => candidate.idTrangThai === filterStatus
-        );
+      : candidates.filter((candidate) => candidate.trangThai === filterStatus);
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-medium mb-4">Danh sách ứng viên</h2>
+    <div className="py-6 px-2">
+      <h2 className="text-xl font-medium mb-3">Danh sách ứng viên</h2>
 
       {/* Lọc theo trạng thái */}
-      <div className="mb-4">
-        <label className="mr-2 text-lg">Lọc theo trạng thái:</label>
+      <div className="mb-4 flex items-center">
+        <label className="mr-2 text-lg">Trạng thái:</label>
         <select
           value={filterStatus}
-          onChange={(e) => setFilterStatus(parseInt(e.target.value))}
-          className="px-4 py-2 border border-gray-300 rounded-md"
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="p-1 border border-gray-300 rounded-md"
         >
-          <option value={3}>Tất cả</option>
-          <option value={0}>Chưa Duyệt</option>
-          <option value={1}>Đã Note</option>
-          <option value={2}>Đã Duyệt</option>
-          <option value={-1}>Đã Khoá</option>
-          <option value={-2}>Đã Huỷ</option>
+          <option value="Tất cả">Tất cả</option>
+          <option value="Chờ Duyệt">Chờ Duyệt</option>
+          <option value="Đã Note">Đã Note</option>
+          <option value="Đã Duyệt">Đã Duyệt</option>
         </select>
       </div>
 
       {/* Danh sách ứng viên */}
-      <ul className="space-y-4">
+      <ul className="p-0 space-y-4">
         {filteredCandidates.map((candidate) => (
           <li
             key={candidate.idNguoiDung}
-            className="flex items-center justify-between"
-          > <Link to={`/view/CV/${candidate.idNguoiDung}`} className="no-underline text-black">
-            <div className="flex items-center">
-              <img
-                src={candidate.logo}
-                alt={candidate.tenNguoiDung}
-                className="w-10 h-10 rounded-full mr-4"
-              />
-              <span className="text-lg ">{candidate.tenNguoiDung}</span>
-            </div>
-          </Link>
-            
+            className="flex items-center px-1 justify-between"
+          >
+            <Link
+              to={`/view/CV/${candidate.idNguoiDung}`}
+              className="no-underline text-black"
+            >
+              <div className="flex items-center">
+                <img
+                  src={candidate.logo}
+                  alt={candidate.tenNguoiDung}
+                  className="w-10 h-10 rounded-full mr-4"
+                />
+                <span className="text-sm overflow-hidden whitespace-nowrap text-ellipsis w-28">
+                  {candidate.tenNguoiDung}
+                </span>
+              </div>
+            </Link>
 
-            {/* Dropdown cho trạng thái */}
             <div className="flex items-center space-x-2">
-              <select
-                value={candidate.idTrangThai}
-                onChange={(e) =>
-                  handleStatusChange(
-                    candidate.idNguoiDung,
-                    parseInt(e.target.value)
-                  )
-                }
-                className="px-2 py-2 border text-sm border-gray-300 rounded-md"
-              >
-                <option value={0}>Chưa Duyệt</option>
-                <option value={1}>Đã Note</option>
-                <option value={2}>Đã Duyệt</option>
-                <option value={-1}>Đã Khoá</option>
-                <option value={-2}>Đã Huỷ</option>
-              </select>
+              {candidate.trangThai === "Chờ Duyệt" && (
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() =>
+                      handleStarClick(
+                        candidate.idNguoiDung,
+                        candidate.trangThai
+                      )
+                    }
+                  >
+                    <FaStar className="text-lg" />
+                  </button>
+                  <button
+                    onClick={() => handleApproveClick(candidate.idNguoiDung)}
+                    className="p-2 border border-green-500 text-green-500 rounded-md"
+                  >
+                    Duyệt
+                  </button>
+                </div>
+              )}
+              {candidate.trangThai === "Đã Note" && (
+                <div className="flex items-center space-x-4 ">
+                  <button
+                    onClick={() =>
+                      handleStarClick(
+                        candidate.idNguoiDung,
+                        candidate.trangThai
+                      )
+                    }
+                    className=" text-yellow-500  "
+                  >
+                    <FaStar className="text-lg text-yellow-500 " />
+                  </button>
+                  <button
+                    onClick={() => handleApproveClick(candidate.idNguoiDung)}
+                    className="p-2 border border-green-500 text-green-500 rounded-md"
+                  >
+                    Duyệt
+                  </button>
+                </div>
+              )}
+              {candidate.trangThai === "Đã Duyệt" && (
+                <div className="flex flex-col">
+                  <span className="text-green-500 font-semibold">Đã Duyệt</span>
+                  <button
+                    onClick={() => handleViewSchedule(candidate.idNguoiDung)}
+                    className="text-yellow-500 font-semibold"
+                  >
+                    xem lịch
+                  </button>
+                </div>
+              )}
             </div>
           </li>
         ))}
       </ul>
+      {showInterviewForm && (
+        <div className="mt-4 p-4 border border-gray-300 rounded-md">
+          <h3 className="text-lg font-semibold">Thông tin phỏng vấn</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label className="block mb-1">Thời gian bắt đầu phỏng vấn</label>
+              <input
+                type="datetime-local"
+                name="startTime"
+                value={formData.startTime}
+                onChange={handleChange}
+                required
+                className="p-2 border border-gray-300 rounded-md w-full"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="block mb-1">Kiểu phỏng vấn</label>
+              <select
+                name="interviewType"
+                value={formData.interviewType}
+                onChange={handleChange}
+                className="p-2 border border-gray-300 rounded-md w-full"
+              >
+                <option value="Online">Online</option>
+                <option value="Offline">Offline</option>
+              </select>
+            </div>
+
+            {formData.interviewType === "Online" && (
+              <div className="mb-3">
+                <label className="block mb-1">Link phỏng vấn</label>
+                <input
+                  type="url"
+                  name="interviewLink"
+                  value={formData.interviewLink}
+                  onChange={handleChange}
+                  required
+                  className="p-2 border border-gray-300 rounded-md w-full"
+                />
+              </div>
+            )}
+
+            {formData.interviewType === "Offline" && (
+              <div className="mb-3">
+                <label className="block mb-1">Địa chỉ phỏng vấn</label>
+                <input
+                  type="text"
+                  name="interviewAddress"
+                  value={formData.interviewAddress}
+                  onChange={handleChange}
+                  required
+                  className="p-2 border border-gray-300 rounded-md w-full"
+                />
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="mt-4 p-2 bg-blue-500 text-white rounded-md"
+            >
+              Gửi thông tin
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowInterviewForm(false)}
+              className="ml-2 p-2 border border-gray-300 text-gray-700 rounded-md"
+            >
+              Hủy
+            </button>
+          </form>
+        </div>
+      )}
+
+      {showSchedule && submittedData && (
+        <div className="mt-6 p-4 border border-gray-300 rounded-md">
+          <button
+            onClick={() => setShowSchedule(false)}
+            className="mb-4 p-2 border border-gray-300 text-gray-700 rounded-md"
+          >
+            Đóng
+          </button>
+          <button className=""></button>
+          <h3 className="text-lg font-semibold">Lịch Phỏng Vấn</h3>
+          <div className="mb-3">
+            <p>
+              <strong>Thời gian :</strong> {submittedData.thoiBatDau}
+            </p>
+            <p>
+              <strong>Kiểu phỏng vấn:</strong> {submittedData.kieuPhongVan}
+            </p>
+            {submittedData.kieuPhongVan === "Online" ? (
+              <p>
+                <strong>Link phỏng vấn:</strong> {submittedData.link}
+              </p>
+            ) : (
+              <p>
+                <strong>Địa chỉ phỏng vấn:</strong>{" "}
+                {submittedData.diaChi}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

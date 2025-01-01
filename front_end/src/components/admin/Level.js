@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { MdAddCircle } from "react-icons/md";
-import AuthApi from "../../api/auth/auth";
+
 import AdminApi from "../../api/admin/admin";
 
-const level = await AuthApi.getAllAuth("/all-level");
+const level = await AdminApi.getAdmin("/all-level");
 const LevelManager = () => {
   const [levels, setLevels] = useState(level);
   const [editingId, setEditingId] = useState(null);
@@ -31,7 +31,7 @@ const LevelManager = () => {
     );
 
     await AdminApi.getUpdateManager("/update/level", editedLevel);
-    await AuthApi.getAllAuth("/all-level").then((res) => {
+    await AdminApi.getAdmin("/all-level").then((res) => {
       setEditingId(res);
     });
   };
@@ -52,7 +52,7 @@ const LevelManager = () => {
         ten: newLevel.tenCapDo.trim(),
       };
       const news = await AdminApi.AddManager("add/level", data);
-      const level = await AuthApi.getAllAuth("/all-level");
+      const level = await AdminApi.getAdmin("/all-level");
       setLevels(level);
       setIsAdding(false);
     }

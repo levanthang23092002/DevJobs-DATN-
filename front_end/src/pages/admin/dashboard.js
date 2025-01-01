@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/admin/Sidebar";
 import ProvinceManagement from "../../components/admin/Province";
@@ -16,25 +16,51 @@ import { MdPostAdd } from "react-icons/md";
 import AdminApi from "../../api/admin/admin";
 import { toast } from "react-toastify";
 
-const totalUser = (await AdminApi.getTotal("total-user")) || { totall: 0 };
-const totalCompany = (await AdminApi.getTotal("total-company")) || {
-  totall: 0,
-};
-const totalPost = (await AdminApi.getTotal("total-post")) || { totall: 0 };
-
-const totalUsers = totalUser.totall || 0;
-const totalCompanys = totalCompany.totall || 0;
-const totalPosts = totalPost.totall || 0;
-
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalCompanies: 0,
+    totalPosts: 0,
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const totalUser = await AdminApi.getTotal("total-user");
+        const totalCompany = await AdminApi.getTotal("total-company");
+        const totalPost = await AdminApi.getTotal("total-post");
+
+        setStats({
+          totalUsers: totalUser?.totall || 0,
+          totalCompanies: totalCompany?.totall || 0,
+          totalPosts: totalPost?.totall || 0,
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+        toast.error("Failed to fetch statistics");
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   const handleLogout = () => {
-    toast.success("Đăng xuất Thành Công");
-    sessionStorage.removeItem("admin");
-    sessionStorage.removeItem("token");
+    toast.success("Đăng xuất thành công");
     sessionStorage.clear();
-navigate("/")
+    navigate("/");
   };
+
+  const renderStatsCard = (icon, label, value) => (
+    <div className="bg-custom-item shadow rounded-md p-6">
+      <div className="flex items-center text-gray-300 text-xl mb-2">
+        {icon}
+        <h2 className="pl-2 my-auto text-sm font-bold">{label}</h2>
+      </div>
+      <p className="text-gray-600 text-4xl font-semibold text-white">{value}</p>
+    </div>
+  );
+
   return (
     <div className="flex bg-custom">
       {/* Sidebar */}
@@ -50,54 +76,44 @@ navigate("/")
               alt="Profile"
               className="mr-2 ml-4 w-8 h-8 rounded-full"
             />
-            <div className="text-sm font-semibold">John Carter</div>
+            <div className="text-sm font-semibold">
+              ADmin
+            </div>
             <button
               onClick={handleLogout}
               className="bg-red-500 p-2 rounded mx-3 text-sm"
             >
-              Đăng Xuất
+              Đăng Xuất
             </button>
           </div>
         </header>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 mb-6">
-          <div className="bg-custom-item shadow rounded-md p-6">
-            <div className="flex items-center text-gray-300 text-xl mb-2">
-              <FaUser className="text-xl" />
-              <h2 className="pl-2 my-auto text-sm font-bold">Số Ứng Viên</h2>
-            </div>
-            <p className="text-gray-600 text-4xl font-semibold text-white">
-              {totalUsers}
-            </p>
-          </div>
-          <div className="bg-custom-item shadow rounded-md p-6">
-            <div className="flex items-center text-gray-300 text-xl mb-2">
-              <ImOffice className="text-xl" />
-              <h2 className="pl-2 my-auto text-sm font-bold">
-                Số Doanh Nghiệp
-              </h2>
-            </div>
-            <p className="text-gray-600 text-4xl font-semibold text-white">
-              {totalCompanys}
-            </p>
-          </div>
-          <div className="bg-custom-item shadow rounded-md p-6">
-            <div className="flex items-center text-gray-300 text-xl mb-2">
-              <MdPostAdd className="text-xl" />
-              <h2 className="pl-2 my-auto text-sm font-bold">Số Bài Đăng</h2>
-            </div>
-            <p className="text-gray-600 text-4xl font-semibold text-white">
-              {totalPosts}
-            </p>
-          </div>
+          {renderStatsCard(
+            <FaUser className="text-xl" />,
+            "Số Ứng Viên",
+            stats.totalUsers
+          )}
+          {renderStatsCard(
+            <ImOffice className="text-xl" />,
+            "Số Doanh Nghiệp",
+            stats.totalCompanies
+          )}
+          {renderStatsCard(
+            <MdPostAdd className="text-xl" />,
+            "Số Bài Đăng",
+            stats.totalPosts
+          )}
         </div>
+
+        {/* Components */}
         <div className="" id="Dashboard">
-          <div className="flex h-96 ">
+          <div className="flex h-96">
             <ProvinceManagement />
             <PositionManager />
           </div>
-          <div className="flex h-96 justify-center mt-10 ">
+          <div className="flex h-96 justify-center mt-10">
             <LevelManager />
           </div>
         </div>

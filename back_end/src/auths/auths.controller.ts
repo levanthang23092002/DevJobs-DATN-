@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import { AuthsService } from './auths.service';
 import { ComanyLoginDto, CompanyRegisterDto } from './dto/register.dto';
 import { Response } from 'express';
@@ -25,8 +25,16 @@ export class AuthsController {
     return await this.service.getAllCompany();
   }
   @Get('all-post')
-  async getallPost() {
+  async getAllPost() {
     return await this.service.getAllPost();
+  }
+  @Get('post-many')
+  async getPostMany() {
+    return await this.service.getPostMany();
+  }
+  @Get('post/:id')
+  async getPost(@Param('id') id) {
+    return await this.service.getPost(id);
   }
   @Get('all-candidate')
   async getallCandidate() {
@@ -48,6 +56,15 @@ export class AuthsController {
   ) {
     await this.service.verifyEmailCompany(token);
     return res.redirect('http://localhost:3000/login');
+  }
+
+  @Get('company/:id')
+  async getCompany(@Param('id') id) {
+    return await this.service.getCompany(id);
+  }
+  @Get('company/:id/job')
+  async getJobCompany(@Param('id') id) {
+    return await this.service.getJobCompany(id);
   }
   //Candidate
   @Post('register-candidate')

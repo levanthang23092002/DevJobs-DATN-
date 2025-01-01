@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import CandidateApi from'../../api/user/candidate'
+import CompanyApi from "../../api/company/company";
 
 const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -12,7 +14,7 @@ const ChangePassword = () => {
     confirm: false,
   });
 
-  const handleChangePassword = (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault();
 
     // Xóa trạng thái thông báo
@@ -26,8 +28,24 @@ const ChangePassword = () => {
     }
 
     // Giả lập gửi yêu cầu đổi mật khẩu
-    if (currentPassword && newPassword.length >= 6) {
-      setSuccess("Đổi mật khẩu thành công!");
+    if (currentPassword && newPassword.length >= 8) {
+      const user = await JSON.parse(sessionStorage.getItem("data"));
+      if (user) {
+        const data = {
+          id: user.id,
+          matKhau: currentPassword,
+          matKhauMoi: newPassword,
+        };
+        if (user.quyen === "User") {
+          await CandidateApi.updateInfo("/change-password", data);
+        }else{
+          await CompanyApi.updateInfo("/change-password", data);
+        }
+        
+        setCurrentPassword("");
+        setConfirmPassword("");
+        setNewPassword("");
+      }
     } else {
       setError("Vui lòng nhập đúng thông tin.(mật khẩu cần lớn 6 ký tự)");
     }

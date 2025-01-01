@@ -4,133 +4,23 @@ import logo from "../../assets/image/logo-removebg-preview.png";
 import { IoNotifications } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import getTimeAgo from "../../assets/Js/configTime";
-
+import CandidateApi from "../../api/user/candidate";
+import CompanyApi from "../../api/company/company";
 import { IoIosSearch } from "react-icons/io";
+import { toast } from "react-toastify";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:5000");
 
 var user = JSON.parse(sessionStorage.getItem("data")) || {
   quyen: null,
 };
 
-if (!user.quyen) {
-  
-}
-
-var notifications = [
-  {
-    idThongBao: 1,
-    idBaiDang: 101,
-    hinhAnh:
-      "https://vcdn1-dulich.vnecdn.net/2021/07/16/1-1626437591.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=i2M2IgCcw574LT-bXFY92g",
-    idNguoiDung: 201,
-    noidung: "Có một công việc mới phù hợp với bạn! 1",
-    thoiGian: "2024-12-14 10:00",
-    trangThai: 1,
-  },
-  {
-    idThongBao: 2,
-    idBaiDang: 102,
-    hinhAnh:
-      "https://vcdn1-dulich.vnecdn.net/2021/07/16/1-1626437591.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=i2M2IgCcw574LT-bXFY92g",
-    idNguoiDung: 202,
-    noidung: "Ứng tuyển của bạn đã được duyệt! 2",
-    thoiGian: "2024-12-13 14:30",
-    trangThai: 0,
-  },
-  {
-    idThongBao: 3,
-    idBaiDang: 103,
-    idNguoiDung: 203,
-    hinhAnh:
-      "https://vcdn1-dulich.vnecdn.net/2021/07/16/1-1626437591.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=i2M2IgCcw574LT-bXFY92g",
-    noidung: "Cập nhật CV của bạn đã hoàn tất!",
-    thoiGian: "2024-12-12 09:15",
-    trangThai: 0,
-  },
-  {
-    idThongBao: 4,
-    idBaiDang: 104,
-    idNguoiDung: 204,
-    hinhAnh:
-      "https://vcdn1-dulich.vnecdn.net/2021/07/16/1-1626437591.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=i2M2IgCcw574LT-bXFY92g",
-
-    noidung: "Có một công ty mới mời bạn phỏng vấn!",
-    thoiGian: "2024-12-11 16:45",
-    trangThai: 0,
-  },
-  {
-    idThongBao: 5,
-    idBaiDang: 105,
-    idNguoiDung: 205,
-    hinhAnh:
-      "https://vcdn1-dulich.vnecdn.net/2021/07/16/1-1626437591.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=i2M2IgCcw574LT-bXFY92g",
-
-    noidung: "Hồ sơ của bạn đã được xem.",
-    thoiGian: "2024-12-10 12:00",
-    trangThai: 0,
-  },
-  {
-    idThongBao: 6,
-    idBaiDang: 106,
-    hinhAnh:
-      "https://vcdn1-dulich.vnecdn.net/2021/07/16/1-1626437591.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=i2M2IgCcw574LT-bXFY92g",
-
-    idNguoiDung: 206,
-    noidung: "Đơn ứng tuyển của bạn đã hết hạn.",
-    thoiGian: "2024-12-09 17:30",
-    trangThai: 0,
-  },
-  {
-    idThongBao: 7,
-    idBaiDang: 107,
-    hinhAnh:
-      "https://vcdn1-dulich.vnecdn.net/2021/07/16/1-1626437591.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=i2M2IgCcw574LT-bXFY92g",
-
-    idNguoiDung: 207,
-    noidung: "Có một công việc mới trong ngành của bạn.",
-    thoiGian: "2024-12-08 08:20",
-    trangThai: 1,
-  },
-  {
-    idThongBao: 8,
-    idBaiDang: 108,
-    hinhAnh:
-      "https://vcdn1-dulich.vnecdn.net/2021/07/16/1-1626437591.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=i2M2IgCcw574LT-bXFY92g",
-
-    idNguoiDung: 208,
-    noidung: "Ứng tuyển của bạn đang được xem xét.",
-    thoiGian: "2024-12-07 11:45",
-    trangThai: 1,
-  },
-  {
-    idThongBao: 9,
-    idBaiDang: 109,
-    hinhAnh:
-      "https://vcdn1-dulich.vnecdn.net/2021/07/16/1-1626437591.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=i2M2IgCcw574LT-bXFY92g",
-
-    idNguoiDung: 209,
-    noidung:
-      "Cập nhật thông tin cá nhân của bạn Cập nhật thông tin cá nhân của bạn.",
-    thoiGian: "2024-12-06 14:30",
-    trangThai: 0,
-  },
-  {
-    idThongBao: 10,
-    idBaiDang: 110,
-    idNguoiDung: 210,
-    hinhAnh:
-      "https://vcdn1-dulich.vnecdn.net/2021/07/16/1-1626437591.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=i2M2IgCcw574LT-bXFY92g",
-
-    noidung: "Có một lời mời phỏng vấn mới!",
-    thoiGian: "2024-12-05 13:00",
-    trangThai: 1,
-  },
-];
-
 function Navbar() {
   const [isDropdownInfo, setIsDropdownInfo] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [filterMode, setFilterMode] = useState("Tất Cả");
-  const [notificationList, setNotificationList] = useState(notifications);
+  const [notificationList, setNotificationList] = useState([]);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
@@ -155,20 +45,32 @@ function Navbar() {
     setIsDropdownInfo(!isDropdownInfo);
   };
 
-  const handleClickOutside = (e) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-      setIsDropdownInfo(false);
-    }
-  };
   useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
+    const fetchData = async () => {
+      try {
+        if (user.quyen === "User") {
+          const tb = await CandidateApi.getInfo(`/${user.id}/notifycation`);
+          setNotificationList(tb);
+        } else {
+          if (user.quyen === "Company") {
+            const tb = await CompanyApi.getInfo(`/${user.id}/notifycation`);
+            setNotificationList(tb);
+            socket.on("new_notifycation_company", async (post) => {
+              const tb = await CompanyApi.getInfo(`/${user.id}/notifycation`);
+              setNotificationList(tb);
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
+
+    fetchData();
   }, []);
 
   const handleLogout = () => {
-    alert("Đăng xuất Thành Công");
+    toast.success("Đăng xuất Thành Công");
     sessionStorage.removeItem("data");
     sessionStorage.clear();
     user = {
@@ -351,7 +253,7 @@ function Navbar() {
                           </li>
                         </Link>
                         <Link
-                          to={`/info/${user.id}`}
+                          to={`/CV/${user.id}`}
                           class="no-underline color-item  rounder"
                         >
                           <li className="px-4 py-2 hover:bg-[#0cc0df] hover:text-white cursor-pointer">

@@ -7,9 +7,9 @@ const companyList = await AuthApi.getAllAuth("/all-company");
 
 const Company = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const companiesPerPage = 5; // Số lượng công ty hiển thị mỗi trang.
+  const companiesPerPage = 5; 
 
-  // Tính toán các công ty ở trang hiện tại
+
   const indexOfLastCompany = currentPage * companiesPerPage;
   const indexOfFirstCompany = indexOfLastCompany - companiesPerPage;
   const currentCompanies = companyList.slice(
@@ -17,10 +17,10 @@ const Company = () => {
     indexOfLastCompany
   );
 
-  // Số trang
+
   const totalPages = Math.ceil(companyList.length / companiesPerPage);
 
-  // Hàm chuyển trang
+
   const goToNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
@@ -118,7 +118,7 @@ const Company = () => {
         <div className="space-y-2 bg-green-100 rounded border-1 ml-20 my-4 p-4 ">
           <h5 className=" flex text-red-600 uppercase px-2">Job Hot</h5>
           {jobList.map((jobItem) => (
-            <Link to={`/job/${jobItem.idbaiDang}`} className="no-underline ">
+            <Link to={`/job/${jobItem.idBaiDang}`} className="no-underline ">
               <div
                 key={jobItem.id}
                 className="border-b-2 border-gray-600  px-4 py-2"
@@ -141,7 +141,7 @@ const Company = () => {
                   <p className="text-sm text-gray-600 m-0 ">
                     {jobItem.tenTinhThanh}
                   </p>
-                  <p className="text-sm text-gray-600 m-0">{jobItem.viTri}</p>
+                  <p className="text-sm text-gray-600 m-0">{jobItem.tenViTri}</p>
                 </div>
                 <div className="flex justify-between m-0">
                   <p className="text-sm text-gray-800">

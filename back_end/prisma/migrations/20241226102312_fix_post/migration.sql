@@ -1,0 +1,33 @@
+/*
+  Warnings:
+
+  - You are about to drop the column `viTri` on the `baidang` table. All the data in the column will be lost.
+
+*/
+-- DropForeignKey
+ALTER TABLE `nguoidung` DROP FOREIGN KEY `NGUOIDUNG_idCapDo_fkey`;
+
+-- DropForeignKey
+ALTER TABLE `nguoidung` DROP FOREIGN KEY `NGUOIDUNG_idViTri_fkey`;
+
+-- AlterTable
+ALTER TABLE `baidang` DROP COLUMN `viTri`,
+    ADD COLUMN `idCapDo` INTEGER NOT NULL DEFAULT 2,
+    ADD COLUMN `idViTri` INTEGER NOT NULL DEFAULT 2,
+    MODIFY `idTinhThanh` INTEGER NOT NULL DEFAULT 2;
+
+-- AlterTable
+ALTER TABLE `nguoidung` MODIFY `idViTri` INTEGER NULL,
+    MODIFY `idCapDo` INTEGER NULL;
+
+-- AddForeignKey
+ALTER TABLE `NGUOIDUNG` ADD CONSTRAINT `NGUOIDUNG_idViTri_fkey` FOREIGN KEY (`idViTri`) REFERENCES `VITRIUNGTUYEN`(`idViTri`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NGUOIDUNG` ADD CONSTRAINT `NGUOIDUNG_idCapDo_fkey` FOREIGN KEY (`idCapDo`) REFERENCES `CapDo`(`idCapDo`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `BAIDANG` ADD CONSTRAINT `BAIDANG_idCapDo_fkey` FOREIGN KEY (`idCapDo`) REFERENCES `CapDo`(`idCapDo`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `BAIDANG` ADD CONSTRAINT `BAIDANG_idViTri_fkey` FOREIGN KEY (`idViTri`) REFERENCES `VITRIUNGTUYEN`(`idViTri`) ON DELETE RESTRICT ON UPDATE CASCADE;

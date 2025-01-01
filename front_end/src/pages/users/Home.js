@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { RxCaretDown } from "react-icons/rx";
 import { MdArrowBackIos } from "react-icons/md";
 import { GrNext } from "react-icons/gr";
 import AuthApi from "../../api/auth/auth";
+import io from "socket.io-client";
 
-const jobListings = await AuthApi.getAllAuth("/all-post");
+const socket = io("http://localhost:5000");
 
 var filteredJob = [];
 var FilterPosition = [];
@@ -13,6 +14,7 @@ var FilterProvince = [];
 var FilterCompanies = [];
 const Home = () => {
   var PAGE_SIZE = 12;
+  const [jobListings, setJobListings] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isDropdownViTri, setDropdownViTri] = useState(false);
   const [selectedViTri, setSelectedViTri] = useState([]);
@@ -23,6 +25,23 @@ const Home = () => {
   const [selectedCompanies, setSelectedCompanies] = useState([]);
   const [selectedOption, setSelectedOption] = useState(12);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await AuthApi.getAllAuth("/all-post");
+        setJobListings(data);
+        socket.on("update_post_admin", async (post) => {
+          const data = await AuthApi.getAllAuth("/all-post");
+          setJobListings(data);
+        });
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleToggleDropdown = (dropdownName) => {
     // Mở dropdown được click, nếu chưa mở
@@ -95,8 +114,8 @@ const Home = () => {
   const countViTri = (listings) => {
     const locationCount = new Map();
     listings.forEach((job) => {
-      const viTri = job.viTri;
-      locationCount.set(viTri, (locationCount.get(viTri) || 0) + 1);
+      const tenViTri = job.tenViTri;
+      locationCount.set(tenViTri, (locationCount.get(tenViTri) || 0) + 1);
     });
     return Array.from(locationCount.entries()).sort((a, b) => b[1] - a[1]);
   };
@@ -138,12 +157,12 @@ const Home = () => {
     } else {
       setDropdownViTri(false);
       const filtered = jobListings.filter((job) =>
-        selectedViTri.includes(job.viTri)
+        selectedViTri.includes(job.tenViTri)
       );
       filteredJob = filtered;
       setFilteredJobs(filtered);
     }
-    FilterPosition = [...new Set(filteredJob.map((job) => job.viTri))];
+    FilterPosition = [...new Set(filteredJob.map((job) => job.tenViTri))];
   };
 
   // lọc Tỉnh thành
@@ -501,9 +520,11 @@ const Home = () => {
                     alt={job.tenCongTy}
                     className="rounded-full w-16 h-16"
                   />
-                  <div className="mt-4">
-                    <p className="font-semibold py-1 px-2  m-0">{job.tenCongTy}</p>
-                    <p className="text-xl text-white font-bold py-1 px-2  m-0">
+                  <div className="mt-2">
+                    <p className="font-semibold py-1 px-2  m-0">
+                      {job.tenCongTy}
+                    </p>
+                    <p className="text-base text-white py-1 px-2  m-0">
                       {job.tenBaiDang}
                     </p>
                   </div>
@@ -513,7 +534,7 @@ const Home = () => {
                   Deadline: {job.hanChot}
                 </p>
 
-                <p className="text-sm px-2 m-0">{job.viTri}</p>
+                <p className="text-sm px-2 m-0">{job.tenViTri}</p>
                 <div className="mt-2 text-sm px-2 flex justify-between">
                   <p className="m-0">{job.tenTinhThanh}</p>
                   <p>{job.soLuong}</p>
@@ -538,8 +559,18 @@ const Home = () => {
                     className="rounded-full w-16 h-16"
                   />
                   <div className="mt-4">
-                    <p className="font-semibold py-1 px-2 m-0">{job.tenCongTy}</p>
-                    <p className="text-xl text-white font-bold px-2 py-1  m-0">
+                    <p className="font-semibold py-1 px-2 m-0">
+                      {job.tenCongTy}
+                    </p>
+                    <p
+                      className=" text-white px-2 py-1 m-0 truncate"
+                      style={{
+                        maxWidth: "100%",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
                       {job.tenBaiDang}
                     </p>
                   </div>
@@ -549,10 +580,10 @@ const Home = () => {
                   Deadline: {job.hanChot}
                 </p>
 
-                <p className="text-sm px-2 m-0">{job.viTri}</p>
+                <p className="text-sm px-2 m-0">{job.tenViTri}</p>
                 <div className="mt-2 text-sm px-2 flex justify-between">
                   <p className="m-0">{job.tenTinhThanh}</p>
-                  <p>{job.soLuong}</p>
+                  <p>Số lượng: {job.soLuong}</p>
                 </div>
                 <Link
                   to={`/job/${job.idBaiDang}`}
