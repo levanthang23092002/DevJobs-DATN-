@@ -15,6 +15,12 @@ export class SimilarityRequestDto {
 
   @IsObject()
   salary: SalaryDto;
+
+  @IsString()
+  education_level: string;
+
+  @IsNumber()
+  experience: number;
 }
 
 export class SalaryDto {

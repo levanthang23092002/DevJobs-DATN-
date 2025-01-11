@@ -3,6 +3,7 @@ import {
   IsNumber,
   IsNumberString,
   IsOptional,
+  IsString,
   Max,
   Min,
 } from 'class-validator';
@@ -46,6 +47,14 @@ export class PostJob {
   readonly hinhAnh: string;
 
   readonly moTa: string;
+
+  @IsNumber()
+  @IsOptional()
+  readonly kinhnghiem?: number;
+
+  @IsString()
+  @IsOptional()
+  readonly TrinhDo?: string;
 }
 
 export class YeuCauDto {

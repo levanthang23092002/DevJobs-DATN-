@@ -30,6 +30,16 @@ const RegisterCandidate = () => {
     setShowPassword((prev) => !prev);
   };
 
+  const education_level = [
+    "Chứng chỉ nghề",
+    "Cao đẳng",
+    "Cử nhân",
+    "Kỹ sư",
+    "Thạc sĩ",
+    "Tiến sĩ",
+    "Phó giáo sư",
+    "Giáo sư",
+  ];
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -77,6 +87,16 @@ const RegisterCandidate = () => {
       } else {
         formData.ngaySinh = new Date();
       }
+      if (
+        formData.kinhnghiemUnit !== null &&
+        formData.kinhnghiemUnit !== "year"
+      ) {
+        formData.kinhnghiem = parseInt(formData.kinhnghiem * 12);
+      }else{
+        formData.kinhnghiem = parseInt(formData.kinhnghiem);
+      }
+      const { kinhnghiemUnit, ...rest } = formData; // Tách kinhnghiemUnit và giữ lại các phần khác
+      setFormData(rest);
       console.log(formData);
       const data = await AuthApi.auth(formData, "/register-candidate");
       if (data.status < 300) {
@@ -119,11 +139,11 @@ const RegisterCandidate = () => {
           </a>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center text-black w-full md:w-1/2 p-4">
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-1 ">
+      <div className="flex flex-col justify-center items-center text-black w-full md:w-1/2 p-2">
+        <h2 className="text-2xl font-bold text-gray-800 text-center ">
           Đăng Ký Tài Khoản
         </h2>
-        <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-2xl">
+        <div className="bg-white p-2 rounded-lg shadow-md w-full max-w-2xl">
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="ten" className="block text-gray-700 font-medium">
@@ -299,7 +319,7 @@ const RegisterCandidate = () => {
                   htmlFor="idViTri"
                   className="block text-gray-700 font-medium"
                 >
-                  Vị Trí
+                  Vị Trí Ứng Tuyển
                 </label>
                 <select
                   id="idViTri"
@@ -320,7 +340,6 @@ const RegisterCandidate = () => {
                 </select>
               </div>
 
-              {/* Tỉnh thành */}
               <div className="flex-1">
                 <label
                   htmlFor="idTinhThanh"
@@ -350,13 +369,36 @@ const RegisterCandidate = () => {
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mb-3">
+              <div className="flex-1">
+                <label
+                  htmlFor="TrinhDo"
+                  className="block text-gray-700 font-medium"
+                >
+                  Trình Độ
+                </label>
+                <select
+                  id="TrinhDo"
+                  name="TrinhDo"
+                  value={formData.TrinhDo}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                  required
+                >
+                  <option value="">Chọn Trình Độ</option>
+                  {education_level.map((level) => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="flex-1">
                 <label
                   htmlFor="idViTri"
                   className="block text-gray-700 font-medium"
                 >
-                  Level
+                  Cấp Độ
                 </label>
                 <select
                   id="idCapDo"
@@ -367,7 +409,7 @@ const RegisterCandidate = () => {
                   required
                 >
                   <option value="" disabled>
-                    Chọn level
+                    Chọn cấp độ
                   </option>
                   {levels.map((level) => (
                     <option key={level.idCapDo} value={level.idCapDo}>
@@ -376,6 +418,42 @@ const RegisterCandidate = () => {
                   ))}
                 </select>
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-3">
+              <div className="flex flex-col">
+                <label
+                  htmlFor="kinhnghiem"
+                  className="block text-gray-700 font-medium"
+                >
+                  Kinh Nghiệm
+                </label>
+                <div className="flex items-center space-x-2">
+                  {/* Input số kinh nghiệm */}
+                  <input
+                    type="number"
+                    id="kinhnghiem"
+                    name="kinhnghiem"
+                    value={formData.kinhnghiem}
+                    onChange={handleChange}
+                    className="w-3/5 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                    placeholder="Nhập số"
+                    required
+                  />
+                  {/* Dropdown chọn đơn vị */}
+                  <select
+                    id="kinhnghiemUnit"
+                    name="kinhnghiemUnit"
+                    value={formData.kinhnghiemUnit}
+                    onChange={handleChange}
+                    className="w-2/5 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+                    required
+                  >
+                    <option value="month">Tháng</option>
+                    <option value="year">Năm</option>
+                  </select>
+                </div>
+              </div>
+
               <div>
                 <label
                   htmlFor="anhDaiDien"
@@ -393,7 +471,6 @@ const RegisterCandidate = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               className="w-full bg-green-500 mt-4 text-white py-2 px-4 rounded-md hover:bg-green-600 transition"

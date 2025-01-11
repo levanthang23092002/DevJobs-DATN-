@@ -59,6 +59,7 @@ const CandidateList = ({ candidates, setCandidates }) => {
       `job/${idJob}/update-status/candidate/${idND}`,
       data
     );
+    await CompanyApi.AddInfo(`/${idJob}/add-notifycation/${idND}`);
     const listCandidate = await CompanyApi.getInfo(`all-candidate/${idJob}`);
     setCandidates(listCandidate);
   };
@@ -79,6 +80,18 @@ const CandidateList = ({ candidates, setCandidates }) => {
     const data = await CompanyApi.getInfo(
       `job/${idJob}/view-schedule/candidate/${idND}`
     );
+
+    const date = new Date(data.thoiBatDau);
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+
+    // Định dạng ngày tháng năm
+    const formattedDate = `${date.getDate().toString().padStart(2, "0")}/${(
+      date.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}`;
+    data.thoiBatDau = `${hours}:${minutes} ngày ${formattedDate}`;
     setSubmittedData(data);
     setShowSchedule(true);
   };
@@ -132,6 +145,7 @@ const CandidateList = ({ candidates, setCandidates }) => {
             <div className="flex items-center space-x-2">
               {candidate.trangThai === "Chờ Duyệt" && (
                 <div className="flex items-center space-x-4">
+                  <span  className="px-1 text-red-500">{candidate.doHopNhau} %</span>
                   <button
                     onClick={() =>
                       handleStarClick(
@@ -144,7 +158,7 @@ const CandidateList = ({ candidates, setCandidates }) => {
                   </button>
                   <button
                     onClick={() => handleApproveClick(candidate.idNguoiDung)}
-                    className="p-2 border border-green-500 text-green-500 rounded-md"
+                    className="p-2 border border-red-500 text-green-500 rounded-md"
                   >
                     Duyệt
                   </button>
@@ -152,6 +166,7 @@ const CandidateList = ({ candidates, setCandidates }) => {
               )}
               {candidate.trangThai === "Đã Note" && (
                 <div className="flex items-center space-x-4 ">
+                  <span className="px-1 text-green-500">{candidate.doHopNhau} %</span>
                   <button
                     onClick={() =>
                       handleStarClick(
@@ -261,32 +276,32 @@ const CandidateList = ({ candidates, setCandidates }) => {
       )}
 
       {showSchedule && submittedData && (
-        <div className="mt-6 p-4 border border-gray-300 rounded-md">
-          <button
-            onClick={() => setShowSchedule(false)}
-            className="mb-4 p-2 border border-gray-300 text-gray-700 rounded-md"
-          >
-            Đóng
-          </button>
-          <button className=""></button>
-          <h3 className="text-lg font-semibold">Lịch Phỏng Vấn</h3>
-          <div className="mb-3">
-            <p>
-              <strong>Thời gian :</strong> {submittedData.thoiBatDau}
-            </p>
-            <p>
-              <strong>Kiểu phỏng vấn:</strong> {submittedData.kieuPhongVan}
-            </p>
-            {submittedData.kieuPhongVan === "Online" ? (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 border border-gray-300 text-gray-700 rounded-md w-full max-w-md shadow-lg">
+            <button
+              onClick={() => setShowSchedule(false)}
+              className="mb-4 p-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-200"
+            >
+              Đóng
+            </button>
+            <h3 className="text-lg font-semibold">Lịch Phỏng Vấn</h3>
+            <div className="mb-3">
               <p>
-                <strong>Link phỏng vấn:</strong> {submittedData.link}
+                <strong>Thời gian :</strong> {submittedData.thoiBatDau}
               </p>
-            ) : (
               <p>
-                <strong>Địa chỉ phỏng vấn:</strong>{" "}
-                {submittedData.diaChi}
+                <strong>Kiểu phỏng vấn:</strong> {submittedData.kieuPhongVan}
               </p>
-            )}
+              {submittedData.kieuPhongVan === "Online" ? (
+                <p>
+                  <strong>Link phỏng vấn:</strong> {submittedData.link}
+                </p>
+              ) : (
+                <p>
+                  <strong>Địa chỉ phỏng vấn:</strong> {submittedData.diaChi}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       )}

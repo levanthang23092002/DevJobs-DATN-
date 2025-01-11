@@ -31,6 +31,8 @@ export class AuthAdminRepository {
       data: {
         tenTinhThanh: data.tenTinhThanh,
         trangThai: data.trangThai,
+        viDo: data.viDo,
+        kinhDo: data.kinhDo,
       },
     });
     return Proveder;
@@ -41,6 +43,7 @@ export class AuthAdminRepository {
       data: {
         tenCapDo: data.tenCapDo,
         trangThai: data.trangThai,
+        mucDo: data.mucDo,
       },
     });
     return level;
@@ -51,7 +54,7 @@ export class AuthAdminRepository {
       where: { tenViTri: data.ten },
     });
 
-    if (existingPosition) {
+    if (existingPosition.length > 0) {
       throw new Error(`Position with name "${data.ten}" already exists.`);
     }
 
@@ -68,8 +71,7 @@ export class AuthAdminRepository {
     const existingProvince = await this.prisma.tINHTHANH.findMany({
       where: { tenTinhThanh: data.ten },
     });
-
-    if (existingProvince) {
+    if (existingProvince.length > 0) {
       throw new Error(`Province with name "${data.ten}" already exists.`);
     }
 
@@ -77,6 +79,8 @@ export class AuthAdminRepository {
     const addProvince = await this.prisma.tINHTHANH.create({
       data: {
         tenTinhThanh: data.ten,
+        viDo: data.viDo,
+        kinhDo: data.kinhDo,
       },
     });
     return addProvince;
@@ -88,7 +92,7 @@ export class AuthAdminRepository {
       where: { tenCapDo: data.ten },
     });
 
-    if (existingLevel) {
+    if (existingLevel.length > 0) {
       throw new Error(`Level with name "${data.ten}" already exists.`);
     }
 
@@ -96,6 +100,7 @@ export class AuthAdminRepository {
     const addLevel = await this.prisma.capDo.create({
       data: {
         tenCapDo: data.ten,
+        mucDo: data.mucDo,
       },
     });
     return addLevel;

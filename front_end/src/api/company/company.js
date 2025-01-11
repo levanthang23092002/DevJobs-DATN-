@@ -49,11 +49,12 @@ class CompanyApi {
       return response.data;
     } catch (error) {
       if (error.response) {
-        toast.error(error.response.data.message || "Có lỗi xảy ra!");
+        toast.error( "Có lỗi xảy ra!");
+        console.log(error.response.data.message)
       } else if (error.request) {
         toast.error("Không thể kết nối đến server. Vui lòng thử lại.");
       } else {
-        toast.error(error.message);
+        console.log(error.message);
       }
     }
   }

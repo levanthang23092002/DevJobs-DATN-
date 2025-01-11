@@ -11,7 +11,7 @@ import { CandidateRepository } from './reponsitory/candidate.repo';
 import { AuthMiddleware } from 'src/middleware/auth.middleware';
 import { NotifycationRepository } from './reponsitory/notification.repo';
 import { PostRepository } from './reponsitory/post.repo';
-import { SimilarityReponsitory } from './reponsitory/Similarity.repo';
+import { SimilarityReponsitory } from '../Similarity/Similarity.repo';
 import { CandidateGateway } from './reponsitory/candidate.gateway';
 
 @Module({

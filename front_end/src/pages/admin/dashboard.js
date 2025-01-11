@@ -23,6 +23,10 @@ const Dashboard = () => {
     totalCompanies: 0,
     totalPosts: 0,
   });
+  const [admin, setadmin] = useState({
+      anhDaiDien: null,
+      ten: null,
+    });
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -36,6 +40,18 @@ const Dashboard = () => {
           totalCompanies: totalCompany?.totall || 0,
           totalPosts: totalPost?.totall || 0,
         });
+
+        const data = await sessionStorage.getItem("admin");
+              if (data) {
+                const adminData = JSON.parse(data);
+                try {
+                  const response = await AdminApi.getAdmin(`/admin/${adminData.id}`);
+                  console.log(response.data);
+                  setadmin(response.data);
+                } catch (error) {
+                  console.log("Error fetching admin data:", error);
+                }
+              }
       } catch (error) {
         console.error("Error fetching stats:", error);
         toast.error("Failed to fetch statistics");
@@ -72,12 +88,12 @@ const Dashboard = () => {
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           <div className="flex items-center text-white text-xl justify-between px-4 py-2 rounded-md">
             <img
-              src="https://gratisography.com/wp-content/uploads/2024/03/gratisography-funflower-800x525.jpg"
+              src={admin.anhDaiDien || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZwkVfEKEdjFIryQmVhdVlLIwBGfGBzAA3GA&s"}
               alt="Profile"
               className="mr-2 ml-4 w-8 h-8 rounded-full"
             />
             <div className="text-sm font-semibold">
-              ADmin
+            {admin.ten}
             </div>
             <button
               onClick={handleLogout}

@@ -1,21 +1,29 @@
 import { IoMdClose } from "react-icons/io";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminApi from "../../api/admin/admin";
-
-const business = await AdminApi.getAdmin("/all-company");
 
 const statusOptions = ["Sửa", "Duyệt", "Hủy", "Khóa"];
 const BusinessManagement = () => {
-  console.log(business);
-  const [businesses, setBusinesses] = useState(business);
+  const [businesses, setBusinesses] = useState([]);
   const [currentBusiness, setCurrentBusiness] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const itemsPerPage = 5;
-  const totalPages = Math.ceil(business.length / itemsPerPage);
+  const totalPages = Math.ceil(businesses.length / itemsPerPage);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const business = await AdminApi.getAdmin("/all-company");
+        setBusinesses(business);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
+    fetchData();
+  }, []);
   const handleStatusChange = async (id, newStatus) => {
-    const update = businesses.map((business) =>
+    businesses.map((business) =>
       business.idCongTy === id
         ? {
             ...business,
@@ -41,7 +49,6 @@ const BusinessManagement = () => {
 
     await AdminApi.getUpdateManager("update/company", data);
     await AdminApi.getAdmin("/all-company").then((res) => {
-     
       setBusinesses(res);
     });
   };
@@ -54,7 +61,7 @@ const BusinessManagement = () => {
   };
 
   const closeDetailsModal = () => {
-    setIsModalOpen(null); // Đóng modal
+    setIsModalOpen(null);
   };
 
   return (

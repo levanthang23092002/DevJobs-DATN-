@@ -36,4 +36,8 @@ export class PostsGateway
   sendUpdatePost(post: any) {
     this.server.emit('update_post_company', post); // Gửi sự kiện tới tất cả client
   }
+
+  sendNewNotificationCandidate(newNotification: any) {
+    this.server.emit('new_notifycation_candidate', newNotification);
+  }
 }

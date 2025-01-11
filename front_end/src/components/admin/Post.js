@@ -19,8 +19,9 @@ const PostManagement = () => {
       try {
         const data = await AdminApi.getAdmin("/all-post");
         setPost(data);
-        socket.on('new_post', (post) => {
-          setPost((prevPosts) => [post, ...prevPosts]);
+        socket.on('new_post', async(post) => {
+          const data = await AdminApi.getAdmin("/all-post");
+          setPost(data);
       });
       } catch (error) {
         console.log(error.message);

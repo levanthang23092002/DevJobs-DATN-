@@ -8,6 +8,7 @@ import { NotifycationRepository } from './reponsitory/notification.repo';
 import { CandidateRepository } from './reponsitory/Candidate.repo';
 import { EmailServiceCandidate } from 'src/config/sendEmailCadidate';
 import { PostsGateway } from './reponsitory/posts.gateway';
+import { SimilarityReponsitory } from 'src/Similarity/Similarity.repo';
 
 @Module({
   controllers: [CompanyController],
@@ -20,6 +21,7 @@ import { PostsGateway } from './reponsitory/posts.gateway';
     CandidateRepository,
     EmailServiceCandidate,
     PostsGateway,
+    SimilarityReponsitory,
   ],
 })
 export class CompanyModule {}

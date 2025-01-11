@@ -5,7 +5,7 @@ import { ChangePasswordDto, UpdateCandidateDto } from './dto/candidate.dto';
 import { NotifycationRepository } from './reponsitory/notification.repo';
 import { PostRepository } from './reponsitory/post.repo';
 import { EmailServiceCompany } from 'src/config/sendEmailCompany';
-import { SimilarityReponsitory } from './reponsitory/Similarity.repo';
+import { SimilarityReponsitory } from '../Similarity/Similarity.repo';
 import { CandidateGateway } from './reponsitory/candidate.gateway';
 
 @Injectable()
@@ -106,8 +106,25 @@ export class CandidateService {
       }
       return {
         message: 'Đã lấy list thông báo thành công',
-        status: 2000,
+        status: 200,
         data: notifycation,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async updateNotifycation(id: string) {
+    try {
+      const notifi = parseInt(id);
+      const update = await this.repoNotifycation.updateNotification(notifi);
+      if (!update) {
+        throw new BadRequestException('Không có thông báo nào');
+      }
+      return {
+        message: 'Đã đọc thông báo',
+        status: 200,
+        data: update,
       };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -120,8 +137,8 @@ export class CandidateService {
       idND = parseInt(idND);
 
       const candidate = await this.repoCandidate.getCandidateDetail(idND);
-      const noidung = ` Ứng Viên ${candidate.ten} Đã Apply và0 bài viết của bạn`;
       const job = await this.repoPost.getJobPostInfo(idBD);
+      const noidung = ` Ứng Viên ${candidate.ten} Đã Apply bài viết ${job.tenBaiDang} của bạn`;
 
       const notifyction = await this.repoNotifycation.addNotifycation(
         job.idCongTy,
@@ -134,7 +151,6 @@ export class CandidateService {
       }
       await this.repoGateway.sendNewNotificationCompany(notifyction);
       return {
-        message: 'Đã thông báo thành công',
         status: 200,
         data: notifyction,
       };
@@ -191,7 +207,10 @@ export class CandidateService {
         min: Number(candidates.luongBatDau),
         max: Number(candidates.luongKetThuc),
       },
+      experience: candidates.kinhnghiem,
+      education_level: candidates.trinhDo,
     };
+
     const results = await Promise.all(
       posts.map(async (post) => {
         const baidang = {
@@ -202,6 +221,8 @@ export class CandidateService {
             min: Number(post.luongBatDau),
             max: Number(post.luongKetThuc),
           },
+          experience: Number(post.kinhnghiem),
+          education_level: post.trinhDo,
         };
 
         const score = await this.repoSimilarity.calculateSimilarity(
@@ -209,14 +230,43 @@ export class CandidateService {
           baidang,
         );
 
-        return await { ...post, doHopNhau: score };
+        return { ...post, doHopNhau: score };
       }),
     );
-    const sortedResults = results.sort((a, b) => b.doHopNhau - a.doHopNhau);
+    const filteredResults = results.filter((result) => result.doHopNhau >= 60);
+    const sortedResults = filteredResults.sort(
+      (a, b) => b.doHopNhau - a.doHopNhau,
+    );
+
     return {
-      message: 'lấy danh sách phù hợp thành công',
+      message: 'Lấy danh sách phù hợp thành công',
       status: 200,
       data: sortedResults,
     };
+  }
+
+  async getSchedule(idBD, idND) {
+    try {
+      // Chuyển đổi các tham số idBD và idND thành số
+      idBD = parseInt(idBD);
+      idND = parseInt(idND);
+
+      if (isNaN(idBD) || isNaN(idND)) {
+        throw new BadRequestException('ID không hợp lệ');
+      }
+
+      const data = await this.repoCandidate.getSchedule(idBD, idND);
+
+      if (!data) {
+        throw new BadRequestException('lấy dữ liệu không thành công');
+      }
+      return {
+        message: 'lấy dữ liệu thành công',
+        status: 200,
+        data: data,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Có lỗi xảy ra');
+    }
   }
 }

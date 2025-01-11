@@ -52,7 +52,7 @@ const AddAdmin = () => {
   return (
     <div className="p-2 bg-custom-item min-h-screen flex items-center justify-center">
       <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-2xl">
-        <h2 className="text-xl font-bold text-center mb-4">Thêm Người Dùng</h2>
+        <h2 className="text-xl font-bold text-center mb-4">Thêm Admin</h2>
 
         <div className="flex flex-col items-center space-y-4">
           <div className="flex flex-col items-center space-y-2">

@@ -41,4 +41,14 @@ export class CandidateController {
   async getyouJob(@Param('id') id: string) {
     return await this.service.yourJob(id);
   }
+
+  @Get('/:idND/job/:idBD/view-schedule')
+  async getSchedule(@Param('idBD') idBD, @Param('idND') idND) {
+    return await this.service.getSchedule(idBD, idND);
+  }
+
+  @Put('notification/:id')
+  async updateNotifi(@Param('id') id: string) {
+    return await this.service.updateNotifycation(id);
+  }
 }

@@ -4,7 +4,7 @@ import uploadImage from "../../assets/Js/UploadImage";
 import { toast } from "react-toastify";
 
 const ProfileAdmin = () => {
-  const [candidate, setCandidate] = useState(null);
+  const [admin, setadmin] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
   // Fetch admin data once the component is mounted
@@ -15,7 +15,7 @@ const ProfileAdmin = () => {
         const adminData = JSON.parse(data);
         try {
           const response = await AdminApi.getAdmin(`/admin/${adminData.id}`);
-          setCandidate(response.data); // Make sure the response contains `data`
+          setadmin(response.data);
         } catch (error) {
           console.error("Error fetching admin data:", error);
         }
@@ -26,7 +26,7 @@ const ProfileAdmin = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCandidate((prev) => ({
+    setadmin((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -39,7 +39,7 @@ const ProfileAdmin = () => {
    
         const url = await uploadImage(file);
         if (url) {
-          setCandidate((prev) => ({
+          setadmin((prev) => ({
             ...prev,
             anhDaiDien: url,
           }));
@@ -59,21 +59,21 @@ const ProfileAdmin = () => {
 
   const handleSave = async () => {
     try {
-      candidate.ngaySinh = new Date(candidate.ngaySinh);
-      await AdminApi.getUpdateManager("/update/admin", candidate);
-      const response = await AdminApi.getAdmin(`/admin/${candidate.id}`);
-      setCandidate(response.data);
+      admin.ngaySinh = new Date(admin.ngaySinh);
+      await AdminApi.getUpdateManager("/update/admin", admin);
+      const response = await AdminApi.getAdmin(`/admin/${admin.id}`);
+      setadmin(response.data);
     } catch (error) {
       console.error("Error saving data:", error);
     } finally {
       setIsEditing(false);
-      const response = await AdminApi.getAdmin(`/admin/${candidate.id}`);
-      setCandidate(response.data);
+      const response = await AdminApi.getAdmin(`/admin/${admin.id}`);
+      setadmin(response.data);
     }
   };
 
-  // Ensure the component handles the case when candidate data is not loaded yet
-  if (!candidate) {
+  // Ensure the component handles the case when admin data is not loaded yet
+  if (!admin) {
     return <div>Loading...</div>;
   }
 
@@ -84,7 +84,7 @@ const ProfileAdmin = () => {
           <div className="flex flex-col items-center space-y-2">
             {/* Hiển thị ảnh đại diện */}
             <img
-              src={candidate.anhDaiDien || "default-avatar-url"} // Nếu không có ảnh, hiển thị ảnh mặc định
+              src={admin.anhDaiDien || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZwkVfEKEdjFIryQmVhdVlLIwBGfGBzAA3GA&s"} // Nếu không có ảnh, hiển thị ảnh mặc định
               alt="Avatar"
               className="w-20 h-20 rounded-full"
             />
@@ -101,7 +101,7 @@ const ProfileAdmin = () => {
             <input
               type="text"
               name="ten"
-              value={candidate.ten}
+              value={admin.ten}
               required
               onChange={handleChange}
               placeholder="Tên ứng viên"
@@ -109,7 +109,7 @@ const ProfileAdmin = () => {
             />
           ) : (
             <h2 className="text-xl flex flex-col items-center font-bold">
-              {candidate.ten}
+              {admin.ten}
             </h2>
           )}
         </div>
@@ -124,13 +124,13 @@ const ProfileAdmin = () => {
                 type="email"
                 name="email"
                 required
-                value={candidate.email}
+                value={admin.email}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
             ) : (
               <p className="mt-1 block w-full px-3 py-2 text-gray-600 border rounded-md shadow-sm">
-                {candidate.email}
+                {admin.email}
               </p>
             )}
           </div>
@@ -144,13 +144,13 @@ const ProfileAdmin = () => {
                   type="date"
                   name="ngaySinh"
                   required
-                  value={candidate.ngaySinh}
+                  value={admin.ngaySinh}
                   onChange={handleChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               ) : (
                 <p className="mt-1 block w-full px-3 py-2 text-gray-600 border rounded-md shadow-sm">
-                  {candidate.ngaySinh}
+                  {admin.ngaySinh}
                 </p>
               )}
             </div>
@@ -163,13 +163,13 @@ const ProfileAdmin = () => {
                   type="text"
                   name="sdt"
                   required
-                  value={candidate.sDT}
+                  value={admin.sDT}
                   onChange={handleChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               ) : (
                 <p className="mt-1 block w-full px-3 py-2 text-gray-600 border rounded-md shadow-sm">
-                  {candidate.sDT}
+                  {admin.sDT}
                 </p>
               )}
             </div>

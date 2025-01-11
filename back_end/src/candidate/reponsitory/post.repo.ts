@@ -101,9 +101,9 @@ export class PostRepository {
       trangThai: baiDang.trangThai,
       hinhAnh: baiDang.hinhAnh || 'https://via.placeholder.com/100',
       luongBatDau: baiDang.luongBatDau,
-
       luongKetThuc: baiDang.luongKetThuc,
-
+      trinhDo: baiDang.TrinhDo,
+      kinhnghiem: baiDang.kinhnghiem,
       hanChot: baiDang.hanChot.toISOString().split('T')[0],
       ngayDang: baiDang.ngayDang.toISOString().split('T')[0],
       ngaySua: baiDang.ngaySua.toISOString().split('T')[0],

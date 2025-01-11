@@ -1,14 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit } from "react-icons/fa"; // Icon từ react-icons
 import { MdAddCircle } from "react-icons/md"; // Icon khác nếu cần
 
 import AdminApi from "../../api/admin/admin";
 
-const province = await AdminApi.getAdmin("/all-city");
-
 const ProvinceManagement = () => {
-  const [provinces, setProvinces] = useState(province);
-
+  const [provinces, setProvinces] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editedProvince, setEditedProvince] = useState({
     tenTinhThanh: "",
@@ -18,13 +15,29 @@ const ProvinceManagement = () => {
   const [newProvince, setNewProvince] = useState({
     tenTinhThanh: "",
     trangThai: "Đã Duyệt",
+    viDo: "",
+    kinhDo: "",
   });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const province = await AdminApi.getAdmin("/all-city");
+        setProvinces(province);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleEditClick = (province) => {
     setEditingId(province.idTinhThanh); // Đặt chế độ chỉnh sửa
     setEditedProvince({
       tenTinhThanh: province.tenTinhThanh,
       trangThai: province.trangThai,
+      viDo: province.viDo,
+      kinhDo: province.kinhDo,
     });
   };
 
@@ -40,7 +53,7 @@ const ProvinceManagement = () => {
       idTinhThanh: id,
       ...editedProvince,
     };
-    console.log(data);
+
     await AdminApi.getUpdateManager("/update/province", data);
     await AdminApi.getAdmin("/all-city").then((res) => {
       setEditingId(res);
@@ -59,6 +72,8 @@ const ProvinceManagement = () => {
     if (newProvince.tenTinhThanh.trim() !== "") {
       const data = {
         ten: newProvince.tenTinhThanh.trim(),
+        viDo: newProvince.viDo,
+        kinhDo: newProvince.kinhDo,
       };
       await AdminApi.AddManager("add/province", data);
       const province = await AdminApi.getAdmin("/all-city");
@@ -115,11 +130,39 @@ const ProvinceManagement = () => {
                       <option value="Đã Duyệt">Đã Duyệt</option>
                       <option value="Đã Khóa">Khóa</option>
                     </select>
+                    <input
+                      type="number"
+                      value={editedProvince.viDo}
+                      onChange={(e) =>
+                        setEditedProvince((prev) => ({
+                          ...prev,
+                          viDo: e.target.value,
+                        }))
+                      }
+                      className="border rounded p-1 text-sm mt-1"
+                    />
+                    <input
+                      type="number"
+                      value={editedProvince.kinhDo}
+                      onChange={(e) =>
+                        setEditedProvince((prev) => ({
+                          ...prev,
+                          kinhDo: e.target.value,
+                        }))
+                      }
+                      className="border rounded p-1 mt-1 text-sm"
+                    />
                   </>
                 ) : (
                   <div className="flex items-center justify-between">
-                    <h2 className="font-bold text-sm mr-2">
+                    <h2 className="font-bold text-base mr-5">
                       {province.tenTinhThanh}
+                    </h2>
+                    <h2 className=" boder-1 text-sm mr-2">
+                      Vĩ độ: {province.viDo}
+                    </h2>
+                    <h2 className=" text-sm mr-2">
+                      kinh độ: {province.kinhDo}
                     </h2>
                     <span
                       className={`px-2 py-1 text-xs rounded-full ${
@@ -167,48 +210,63 @@ const ProvinceManagement = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="shadow-md bg-custom-item justify-between p-4 flex">
-        {isAdding && (
-          <div className="flex items-center justify-between bg-white shadow-md rounded-md px-3 py-2">
-            <div>
-              <input
-                type="text"
-                value={newProvince.tenTinhThanh}
-                onChange={(e) =>
-                  setNewProvince((prev) => ({
-                    ...prev,
-                    tenTinhThanh: e.target.value,
-                  }))
-                }
-                placeholder="Tên tỉnh/thành"
-                className="border rounded p-1 text-sm"
-              />
-            </div>
-            <div className="flex items-center">
-              <button
-                className="text-green-500 hover:text-green-600 mx-2"
-                onClick={handleSaveNewProvince}
-              >
-                Lưu
-              </button>
-              <button
-                className="text-gray-500 hover:text-gray-600"
-                onClick={handleCancelNewProvince}
-              >
-                Hủy
-              </button>
-            </div>
-          </div>
-        )}
+      <div className="shadow-md bg-custom-item justify-between p-4">
+  {isAdding ? (
+    <div className="items-center justify-between bg-white shadow-md rounded-md px-3 py-2">
+      <div className="flex  gap-2">
+        {["Tên tỉnh/thành", "Vĩ độ", "Kinh độ"].map((placeholder, index) => (
+          <input
+            key={index}
+            type={index === 0 ? "text" : "number"}
+            value={
+              index === 0
+                ? newProvince.tenTinhThanh
+                : index === 1
+                ? newProvince.viDo
+                : newProvince.kinhDo
+            }
+            onChange={(e) =>
+              setNewProvince((prev) => ({
+                ...prev,
+                [index === 0
+                  ? "tenTinhThanh"
+                  : index === 1
+                  ? "viDo"
+                  : "kinhDo"]: e.target.value,
+              }))
+            }
+            placeholder={placeholder}
+            className="border rounded p-1 text-sm w-1/3"
+          />
+        ))}
+      </div>
+      {/* Nút lưu/hủy */}
+      <div className="flex items-center justify-end mt-2">
         <button
-          className="bg-orange-500 text-white text-text-sm px-3 py-2 rounded-md hover:bg-orange-600 flex items-center gap-2"
-          onClick={handleAddProvince}
+          className="text-green-500 hover:text-green-600 mx-2"
+          onClick={handleSaveNewProvince}
         >
-          <MdAddCircle size={16} />
-          Thêm tỉnh/thành phố
+          Lưu
+        </button>
+        <button
+          className="text-gray-500 hover:text-gray-600"
+          onClick={handleCancelNewProvince}
+        >
+          Hủy
         </button>
       </div>
+    </div>
+  ) : (
+    <button
+      className="bg-orange-500 mt-2 text-white text-text-sm px-3 py-2 rounded-md hover:bg-orange-600 flex items-center gap-2"
+      onClick={handleAddProvince}
+    >
+      <MdAddCircle size={16} />
+      Thêm tỉnh/thành phố
+    </button>
+  )}
+</div>
+
     </div>
   );
 };

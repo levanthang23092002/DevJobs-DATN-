@@ -20,6 +20,8 @@ export class CandidateRepository {
         idViTri: data.idViTri,
         idCapDo: data.idCapDo,
         idTinhThanh: data.idTinhThanh,
+        TrinhDo: data.trinhDo,
+        kinhnghiem: data.kinhnghiem,
       },
     });
     return updateCandidate;
@@ -97,6 +99,8 @@ export class CandidateRepository {
       mucDo: candidate.capDo.mucDo,
       viDo: candidate.tinhThanh.viDo,
       kinhDo: candidate.tinhThanh.kinhDo,
+      kinhnghiem: candidate.kinhnghiem,
+      trinhDo: candidate.TrinhDo,
     };
   }
 
@@ -119,5 +123,17 @@ export class CandidateRepository {
       },
     });
     return apply.length != 0;
+  }
+  async getSchedule(idBD: number, idND: number) {
+    const data = await this.prisma.dANHSACH_UV.findUnique({
+      where: {
+        idBaiDang_idNguoiDung: {
+          idBaiDang: idBD,
+          idNguoiDung: idND,
+        },
+      },
+    });
+
+    return data;
   }
 }

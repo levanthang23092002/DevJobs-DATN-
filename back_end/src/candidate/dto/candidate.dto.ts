@@ -49,6 +49,14 @@ export class UpdateCandidateDto {
   @Max(1000000000000)
   @IsOptional()
   luongKetThuc?: number;
+
+  @IsNumber()
+  @IsOptional()
+  readonly kinhnghiem?: number;
+
+  @IsString()
+  @IsOptional()
+  readonly trinhDo?: string;
 }
 
 export class ChangePasswordDto {

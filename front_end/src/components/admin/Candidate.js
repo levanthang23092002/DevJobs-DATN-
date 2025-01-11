@@ -1,18 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { IoMdClose } from "react-icons/io";
 
 import AdminApi from "../../api/admin/admin";
 
-const candidates = await AdminApi.getAdmin("/all-candidate");
+
 
 const statusOptions = ["Sửa", "Duyệt", "Hủy", "Khóa"];
 
 const CandidateList = () => {
-  const [data, setData] = useState(candidates);
+  const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCandidate, setSelectedCandidate] = useState(null); // Quản lý ứng viên được chọn
   const itemsPerPage = 5;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const candidates = await AdminApi.getAdmin("/all-candidate");
+        setData(candidates)
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
+    fetchData();
+  }, []);
   const handleStatusChange = async (id, newStatus) => {
     const newTrangThai =
       newStatus === "Duyệt"

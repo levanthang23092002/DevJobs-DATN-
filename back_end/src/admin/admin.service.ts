@@ -147,10 +147,14 @@ export class AdminService {
 
   async updateProvince(dto: UpdateProvinceDto) {
     try {
-      const { idTinhThanh, ...rest } = dto;
+      const { idTinhThanh, kinhDo, viDo, ...rest } = dto;
       const id = parseInt(idTinhThanh);
+      const kinhdo = parseFloat(kinhDo);
+      const vido = parseFloat(viDo);
       const data = {
         ...rest,
+        kinhDo: kinhdo,
+        viDo: vido,
       };
       const province = await this.repoAuth.updateProvince(id, data);
 
@@ -170,10 +174,11 @@ export class AdminService {
 
   async updateLevel(dto: UpdateLevelDto) {
     try {
-      const { idCapDo, ...rest } = dto;
+      const { idCapDo, mucDo, ...rest } = dto;
       const id = parseInt(idCapDo);
       const data = {
         ...rest,
+        mucDo: parseInt(mucDo),
       };
       const level = await this.repoAuth.updateLevel(id, data);
 
@@ -276,7 +281,12 @@ export class AdminService {
   }
   async addLevel(dto: AddManagerDto) {
     try {
-      const newLevel = await this.repoAuth.addLevel(dto);
+      const { mucDo, ...rest } = dto;
+      const data = {
+        ...rest,
+        mucDo: parseInt(mucDo),
+      };
+      const newLevel = await this.repoAuth.addLevel(data);
       if (!newLevel) {
         throw new BadRequestException('Thêm Cấp Độ thất bại !');
       }
@@ -291,7 +301,15 @@ export class AdminService {
   }
   async addProvince(dto: AddManagerDto) {
     try {
-      const newProvince = await this.repoAuth.addProvince(dto);
+      const { kinhDo, viDo, ...rest } = dto;
+      const kinhdo = parseFloat(kinhDo);
+      const vido = parseFloat(viDo);
+      const data = {
+        ...rest,
+        kinhDo: kinhdo,
+        viDo: vido,
+      };
+      const newProvince = await this.repoAuth.addProvince(data);
       if (!newProvince) {
         throw new BadRequestException('Thêm tỉnh công thất bại !');
       }

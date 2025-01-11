@@ -103,6 +103,14 @@ export class CompanyController {
     return await this.service.updateStatusNote(idBD, idND, data);
   }
 
+  @Post('/:idBD/add-notifycation/:idND')
+  async addNotifycation(
+    @Param('idND') idND: string,
+    @Param('idBD') idBD: string,
+  ) {
+    return await this.service.addNotification(idBD, idND);
+  }
+
   @Get('job/:idBD/view-schedule/candidate/:idND')
   async getSchedule(@Param('idBD') idBD, @Param('idND') idND) {
     return await this.service.getSchedule(idBD, idND);

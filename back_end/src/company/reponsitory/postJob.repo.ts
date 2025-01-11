@@ -22,6 +22,8 @@ export class PostJobRepository {
         ngayDang: new Date(),
         ngaySua: new Date(),
         moTa: data.moTa,
+        TrinhDo: data.TrinhDo,
+        kinhnghiem: data.kinhnghiem,
       },
       include: {
         congTy: {
@@ -115,6 +117,8 @@ export class PostJobRepository {
         luongKetThuc: data.luongKetThuc,
         ngaySua: new Date(),
         moTa: data.moTa,
+        TrinhDo: data.TrinhDo,
+        kinhnghiem: data.kinhnghiem,
       },
     });
     return job.idBaiDang;
@@ -194,15 +198,35 @@ export class PostJobRepository {
         congTy: {
           select: {
             tenCongTy: true,
-
+            logo: true,
             nganhNghe: true,
             linkWeb: true,
             email: true,
+            sDT: true,
+          },
+        },
+        tinhThanh: {
+          select: {
+            tenTinhThanh: true,
+            viDo: true,
+            kinhDo: true,
+          },
+        },
+        yeuCau: {
+          select: {
+            idYeuCau: true,
+            noiDung: true,
           },
         },
         viTri: {
           select: {
             tenViTri: true,
+          },
+        },
+        capDo: {
+          select: {
+            tenCapDo: true,
+            mucDo: true,
           },
         },
       },
@@ -214,6 +238,14 @@ export class PostJobRepository {
       tenBaiDang: baiDang.tenBaiDang,
       viTri: baiDang.viTri.tenViTri,
       linkWeb: baiDang.congTy.linkWeb,
+      tenCapDo: baiDang.capDo.tenCapDo,
+      mucDo: baiDang.capDo.mucDo,
+      viDo: baiDang.tinhThanh.viDo,
+      kinhDo: baiDang.tinhThanh.kinhDo,
+      luongBatDau: baiDang.luongBatDau,
+      luongKetThuc: baiDang.luongKetThuc,
+      trinhDo: baiDang.TrinhDo,
+      kinhnghiem: baiDang.kinhnghiem,
     };
   }
 }

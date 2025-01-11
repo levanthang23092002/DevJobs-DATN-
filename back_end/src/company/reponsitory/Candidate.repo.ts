@@ -16,19 +16,48 @@ export class CandidateRepository {
             idNguoiDung: true,
             ten: true,
             anhDaiDien: true,
+            TrinhDo: true,
+            kinhnghiem: true,
+            luongBatDau: true,
+            luongKetThuc: true,
+            viTri: {
+              select: {
+                tenViTri: true,
+              },
+            },
+            capDo: {
+              select: {
+                tenCapDo: true,
+                mucDo: true,
+              },
+            },
+            tinhThanh: {
+              select: {
+                tenTinhThanh: true,
+                viDo: true,
+                kinhDo: true,
+              },
+            },
           },
         },
       },
     });
 
-    // Định dạng lại dữ liệu để khớp với cấu trúc `ListUngVien`
-    const formattedList = listUngVien.map((uv) => ({
-      idNguoiDung: uv.nguoiDung.idNguoiDung,
-      tenNguoiDung: uv.nguoiDung.ten,
+    const formattedList = listUngVien.map((candidate) => ({
+      idNguoiDung: candidate.nguoiDung.idNguoiDung,
+      tenNguoiDung: candidate.nguoiDung.ten,
       logo:
-        uv.nguoiDung.anhDaiDien ||
+        candidate.nguoiDung.anhDaiDien ||
         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZwkVfEKEdjFIryQmVhdVlLIwBGfGBzAA3GA&s',
-      trangThai: uv.trangThai,
+      trangThai: candidate.trangThai,
+      mucDo: candidate.nguoiDung.capDo.mucDo,
+      viDo: candidate.nguoiDung.tinhThanh.viDo,
+      kinhDo: candidate.nguoiDung.tinhThanh.kinhDo,
+      kinhnghiem: candidate.nguoiDung.kinhnghiem,
+      trinhDo: candidate.nguoiDung.TrinhDo,
+      tenViTri: candidate.nguoiDung.viTri.tenViTri,
+      luongBatDau: candidate.nguoiDung.luongBatDau,
+      luongKetThuc: candidate.nguoiDung.luongKetThuc,
     }));
 
     return formattedList;

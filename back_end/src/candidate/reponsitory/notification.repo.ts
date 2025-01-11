@@ -51,4 +51,14 @@ export class NotifycationRepository {
     });
     return thongBao;
   }
+
+  async updateNotification(id: number) {
+    const update = await this.prisma.tHONGBAO.update({
+      where: { idThongBao: id },
+      data: {
+        trangThai: 1,
+      },
+    });
+    return update;
+  }
 }

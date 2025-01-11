@@ -57,7 +57,7 @@ const Register = () => {
 
         </div>
       </div>
-      <div className="flex-[3] bg-black"> h</div>
+      <div className="flex-[3] bg-black text-black"> h</div>
     </div>
   );
 };

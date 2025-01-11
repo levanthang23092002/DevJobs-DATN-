@@ -8,6 +8,7 @@ import { RequestRepository } from './reponsitory/request.repo';
 import { NotifycationRepository } from './reponsitory/notification.repo';
 import { CandidateRepository } from './reponsitory/Candidate.repo';
 import { EmailServiceCandidate } from 'src/config/sendEmailCadidate';
+import { SimilarityReponsitory } from '../Similarity/Similarity.repo';
 import { PostsGateway } from './reponsitory/posts.gateway';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class CompanyService {
     private readonly repoCandidate: CandidateRepository,
     private readonly repoEmailCandidate: EmailServiceCandidate,
     private readonly postsGateway: PostsGateway,
+    private readonly repoSimilarity: SimilarityReponsitory,
   ) {}
 
   async getCompanyDetail(id) {
@@ -311,13 +313,48 @@ export class CompanyService {
     try {
       const idBD = parseInt(id);
       const list = await this.repoCandidate.getAllCandidate(idBD);
+      const post = await this.repoPostJob.getPostByCompany(idBD);
       if (!list) {
         throw new BadRequestException('Chưa có ứng viên ứng tuyển');
       }
+      const baidang = {
+        position: post.viTri,
+        location: { lat: post.viDo, lon: post.kinhDo }, // Hà Nội
+        level: post.mucDo, // Lead
+        salary: {
+          min: Number(post.luongBatDau),
+          max: Number(post.luongKetThuc),
+        },
+        experience: Number(post.kinhnghiem),
+        education_level: post.trinhDo,
+      };
+      const results = await Promise.all(
+        list.map(async (candidates) => {
+          const candidate = {
+            position: candidates.tenViTri,
+            location: { lat: candidates.viDo, lon: candidates.kinhDo },
+            level: candidates.mucDo, // Lead
+            salary: {
+              min: Number(candidates.luongBatDau),
+              max: Number(candidates.luongKetThuc),
+            },
+            experience: candidates.kinhnghiem,
+            education_level: candidates.trinhDo,
+          };
+
+          const score = await this.repoSimilarity.calculateSimilarity(
+            candidate,
+            baidang,
+          );
+
+          return await { ...candidates, doHopNhau: score };
+        }),
+      );
+      const sortedResults = results.sort((a, b) => b.doHopNhau - a.doHopNhau);
       return {
         message: 'List ứng viên ứng tuyển',
         status: 200,
-        data: list,
+        data: sortedResults,
       };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -361,6 +398,32 @@ export class CompanyService {
       throw new BadRequestException(error.message);
     }
   }
+  async addNotification(idBD, idND) {
+    try {
+      idBD = parseInt(idBD);
+      idND = parseInt(idND);
+
+      const job = await this.repoPostJob.getPostByCompany(idBD);
+      const noidung = `Công ty ${job.tenCongTy} Đã Duyệt CV của bạn ở ${job.tenBaiDang}`;
+      const notifyction = await this.repoNotifycation.addNotifycation(
+        idND,
+        idBD,
+        noidung,
+      );
+
+      if (!notifyction) {
+        throw new BadRequestException('Không thể thông báo ');
+      }
+      await this.postsGateway.sendNewNotificationCandidate(notifyction);
+      return {
+        status: 200,
+        data: notifyction,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async updateStatusNote(idBD, idND, data) {
     try {
       // Chuyển đổi các tham số idBD và idND thành số

@@ -89,7 +89,7 @@ function YourJob() {
 
             <div className="mt-2 text-sm px-2 flex justify-between">
                 <p className="m-0">{job.tenViTri}</p>
-                <p className="m-0">Phù hợp: {job.doHopNhau} %</p>
+                <p className="m-0 color-item">Phù hợp: {job.doHopNhau} %</p>
               </div>
               <div className=" text-sm px-2 flex justify-between">
                 <p className="m-0">{job.tenTinhThanh}</p>
@@ -97,9 +97,9 @@ function YourJob() {
               </div>
               <Link
                 to={`/job/${job.idBaiDang}`}
-                className="color-item hover:no-underline hover:text-[#0cc0df]"
+                className="color-item no-underline hover:no-underline hover:text-[#0cc0df]"
               >
-                <p className="text-sm px-2 m-0 text-right">Xem chi tiết</p>
+                <p className="text-sm  text-red-500 px-2 m-0 text-right">Xem chi tiết</p>
               </Link>
             </div>
           ))

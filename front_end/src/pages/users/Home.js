@@ -1,616 +1,323 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { RxCaretDown } from "react-icons/rx";
-import { MdArrowBackIos } from "react-icons/md";
-import { GrNext } from "react-icons/gr";
 import AuthApi from "../../api/auth/auth";
-import io from "socket.io-client";
+import { Link } from "react-router-dom";
 
-const socket = io("http://localhost:5000");
-
-var filteredJob = [];
-var FilterPosition = [];
-var FilterProvince = [];
-var FilterCompanies = [];
 const Home = () => {
-  var PAGE_SIZE = 12;
   const [jobListings, setJobListings] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isDropdownViTri, setDropdownViTri] = useState(false);
-  const [selectedViTri, setSelectedViTri] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
-  const [isDropdownTinhThanh, setDropdownTinhThanh] = useState(false);
+  const [selectedViTri, setSelectedViTri] = useState([]);
   const [selectedTinhThanh, setSelectedTinhThanh] = useState([]);
-  const [isDropdownCompanies, setDropdownCompanies] = useState(false);
   const [selectedCompanies, setSelectedCompanies] = useState([]);
-  const [selectedOption, setSelectedOption] = useState(12);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownViTriOpen, setDropdownViTriOpen] = useState(false);
+  const [isDropdownTinhThanhOpen, setDropdownTinhThanhOpen] = useState(false);
+  const [isDropdownCompaniesOpen, setDropdownCompaniesOpen] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 9; // Số công việc hiển thị trên mỗi trang
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await AuthApi.getAllAuth("/all-post");
         setJobListings(data);
-        socket.on("update_post_admin", async (post) => {
-          const data = await AuthApi.getAllAuth("/all-post");
-          setJobListings(data);
-        });
+        setFilteredJobs(data);
       } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
       }
     };
 
     fetchData();
   }, []);
 
-  const handleToggleDropdown = (dropdownName) => {
-    // Mở dropdown được click, nếu chưa mở
-    if (dropdownName === "viTri") {
-      setDropdownTinhThanh(false);
-      setDropdownCompanies(false);
-      setIsDropdownOpen(false);
-      setDropdownViTri(!isDropdownViTri);
+  // Apply filter logic
+  const applyFilters = () => {
+    let filtered = jobListings;
+
+    if (selectedViTri.length > 0) {
+      filtered = filtered.filter((job) => selectedViTri.includes(job.tenViTri));
     }
-    if (dropdownName === "tinhThanh") {
-      setDropdownTinhThanh(!isDropdownTinhThanh);
-      setDropdownViTri(false);
-      setDropdownCompanies(false);
-      setIsDropdownOpen(false);
+    if (selectedTinhThanh.length > 0) {
+      filtered = filtered.filter((job) =>
+        selectedTinhThanh.includes(job.tenTinhThanh)
+      );
+    }
+    if (selectedCompanies.length > 0) {
+      filtered = filtered.filter((job) =>
+        selectedCompanies.includes(job.tenCongTy)
+      );
     }
 
-    if (dropdownName === "companies") {
-      setDropdownViTri(false);
-      setDropdownTinhThanh(false);
-      setIsDropdownOpen(false);
-      setDropdownCompanies(!isDropdownCompanies);
-    }
-
-    if (dropdownName === "open") {
-      setDropdownViTri(false);
-      setDropdownTinhThanh(false);
-      setDropdownCompanies(false);
-      setIsDropdownOpen(!isDropdownOpen);
-    }
+    setFilteredJobs(filtered);
+    setDropdownViTriOpen(false);
+    setDropdownTinhThanhOpen(false);
+    setDropdownCompaniesOpen(false);
+    setCurrentPage(1); // Reset về trang đầu tiên
   };
 
-  var startIndex = (currentPage - 1) * PAGE_SIZE;
-  var endIndex = startIndex + PAGE_SIZE;
-  var currentJobListings = jobListings.slice(startIndex, endIndex);
-  var totalPages = Math.ceil(jobListings.length / PAGE_SIZE);
+  // Clear all filters
+  const clearFilters = () => {
+    setSelectedViTri([]);
+    setSelectedTinhThanh([]);
+    setSelectedCompanies([]);
+    setFilteredJobs(jobListings);
+    setCurrentPage(1);
+  };
+
+  // Dynamic unique values based on filteredJobs
+  const uniqueViTri = [...new Set(filteredJobs.map((job) => job.tenViTri))];
+  const uniqueTinhThanh = [
+    ...new Set(filteredJobs.map((job) => job.tenTinhThanh)),
+  ];
+  const uniqueCompanies = [
+    ...new Set(filteredJobs.map((job) => job.tenCongTy)),
+  ];
+
+  // Pagination
+  const totalPages = Math.ceil(filteredJobs.length / PAGE_SIZE);
+
+  const currentJobs = filteredJobs.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+      setCurrentPage((prev) => prev + 1);
     }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+      setCurrentPage((prev) => prev - 1);
     }
   };
 
-  const options = [12, 18, 24, 30];
-
-  const handleOptionClick = (option) => {
-    setSelectedOption(option);
-    PAGE_SIZE = option;
-    if (filteredJob.length > 0) {
-      startIndex = (currentPage - 1) * PAGE_SIZE;
-      endIndex = startIndex + PAGE_SIZE;
-      currentJobListings = filteredJob.slice(startIndex, endIndex);
-      totalPages = Math.ceil(filteredJob.length / PAGE_SIZE);
-    } else {
-      startIndex = (currentPage - 1) * PAGE_SIZE;
-      endIndex = startIndex + PAGE_SIZE;
-      currentJobListings = jobListings.slice(startIndex, endIndex);
-      totalPages = Math.ceil(jobListings.length / PAGE_SIZE);
-    }
-    setFilteredJobs(currentJobListings);
-    setIsDropdownOpen(false); // Đóng dropdown sau khi chọn
-  };
-
-  // Lọc Vị trí
-  const countViTri = (listings) => {
-    const locationCount = new Map();
-    listings.forEach((job) => {
-      const tenViTri = job.tenViTri;
-      locationCount.set(tenViTri, (locationCount.get(tenViTri) || 0) + 1);
-    });
-    return Array.from(locationCount.entries()).sort((a, b) => b[1] - a[1]);
-  };
-  var sortedViTri = null;
-  if (filteredJob.length > 0) {
-    sortedViTri = countViTri(filteredJob);
-  } else {
-    sortedViTri = countViTri(jobListings);
-  }
-  const handleLocationChange = (location) => {
-    if (selectedViTri.includes(location)) {
-      setSelectedViTri(selectedViTri.filter((loc) => loc !== location));
-    } else {
-      setSelectedViTri([...selectedViTri, location]);
-    }
-  };
-
-  const handleCancel = () => {
-    if (filteredJob.length > 0) {
-      setSelectedViTri([]);
-      setDropdownViTri(false);
-      setFilteredJobs(filteredJob);
-    } else {
-      setSelectedViTri([]);
-      setDropdownViTri(false);
-      setFilteredJobs(currentJobListings);
-    }
-  };
-
-  const handleApply = () => {
-    if (filteredJob.length > 0) {
-      setDropdownViTri(false);
-      const filtered = filteredJob.filter((job) =>
-        selectedViTri.includes(job.viTri)
-      );
-      filteredJob = filtered;
-      setFilteredJobs(filtered);
-      FilterPosition = [...new Set(filteredJob.map((job) => job.viTri))];
-    } else {
-      setDropdownViTri(false);
-      const filtered = jobListings.filter((job) =>
-        selectedViTri.includes(job.tenViTri)
-      );
-      filteredJob = filtered;
-      setFilteredJobs(filtered);
-    }
-    FilterPosition = [...new Set(filteredJob.map((job) => job.tenViTri))];
-  };
-
-  // lọc Tỉnh thành
-  const handleCheckboxChangeTinhThanh = (tinhThanh) => {
-    setSelectedTinhThanh((prevSelected) =>
-      prevSelected.includes(tinhThanh)
-        ? prevSelected.filter((item) => item !== tinhThanh)
-        : [...prevSelected, tinhThanh]
-    );
-  };
-
-  // Hàm để áp dụng lọc
-  const applyTinhThanh = () => {
-    if (filteredJob.length > 0) {
-      setDropdownTinhThanh(false);
-      const filtered = filteredJob.filter((job) =>
-        selectedTinhThanh.includes(job.tenTinhThanh)
-      );
-      filteredJob = filtered;
-      setFilteredJobs(filtered);
-      FilterProvince = [...new Set(filteredJob.map((job) => job.tenTinhThanh))];
-    } else {
-      setDropdownTinhThanh(false);
-      const filtered = jobListings.filter((job) =>
-        selectedTinhThanh.includes(job.tenTinhThanh)
-      );
-      filteredJob = filtered;
-      setFilteredJobs(filtered);
-      FilterProvince = [...new Set(filteredJob.map((job) => job.tenTinhThanh))];
-    }
-  };
-
-  const cancelTinhThanh = () => {
-    if (filteredJob.length > 0) {
-      setSelectedTinhThanh([]);
-      setDropdownTinhThanh(false);
-      setFilteredJobs(filteredJob);
-    } else {
-      setSelectedTinhThanh([]);
-      setDropdownTinhThanh(false);
-      setFilteredJobs(currentJobListings);
-    }
-  };
-  var uniqueTinhThanh = null;
-  if (filteredJob.length > 0) {
-    uniqueTinhThanh = [...new Set(filteredJob.map((job) => job.tenTinhThanh))];
-  } else {
-    uniqueTinhThanh = [...new Set(jobListings.map((job) => job.tenTinhThanh))];
-  }
-
-  // lọc theo danh nghiệp
-
-  const handleCheckboxChangeCompanies = (companyName) => {
-    setSelectedCompanies((prevSelected) =>
-      prevSelected.includes(companyName)
-        ? prevSelected.filter((item) => item !== companyName)
-        : [...prevSelected, companyName]
-    );
-  };
-
-  const applyCompanies = () => {
-    if (filteredJob.length > 0) {
-      setDropdownCompanies(false);
-      const filtered = filteredJob.filter((job) =>
-        selectedViTri.includes(job.viTri)
-      );
-      filteredJob = filtered;
-      setFilteredJobs(filtered);
-      FilterCompanies = [...new Set(filteredJob.map((job) => job.tenCongTy))];
-      console.log(FilterCompanies);
-    } else {
-      setDropdownCompanies(false);
-      const filtered = jobListings.filter((job) =>
-        selectedCompanies.includes(job.tenCongTy)
-      );
-      filteredJob = filtered;
-      setFilteredJobs(filtered);
-      FilterCompanies = [...new Set(filteredJob.map((job) => job.tenCongTy))];
-      console.log(FilterCompanies);
-    }
-  };
-
-  // Hàm để hủy lọc
-  const cancelCompanies = () => {
-    if (filteredJob.length > 0) {
-      setSelectedCompanies([]);
-      setDropdownCompanies(false);
-      setFilteredJobs(filteredJob);
-    } else {
-      setSelectedCompanies([]);
-      setDropdownCompanies(false);
-      setFilteredJobs(currentJobListings);
-    }
-  };
-  var uniqueCompanies = null;
-  if (filteredJob.length > 0) {
-    uniqueCompanies = [...new Set(filteredJob.map((job) => job.tenCongTy))];
-  } else {
-    uniqueCompanies = [...new Set(jobListings.map((job) => job.tenCongTy))];
-  }
-  const RemoveFilter = () => {
-    filteredJob = [];
-    setFilteredJobs(currentJobListings);
-    FilterPosition = [];
-    FilterProvince = [];
-    FilterCompanies = [];
-  };
   return (
-    <div className=" container text-white ">
+    <div className="container mx-auto">
       {/* Header */}
-      <div className=" py-2 flex justify-between text-black items-center ">
-        <div className="flex space-x-4 px-8 ">
-          <div onClick={() => handleToggleDropdown("viTri")}>
-            <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-300 hover:rounded-lg cursor-pointer">
-              <button className="text-xl pr-3  font-bold ">Vị trí</button>
-              <RxCaretDown className="text-3xl" />
+      <div className="py-4 flex justify-between items-center">
+        <div className="flex space-x-4">
+          {/* Dropdown Vị trí */}
+          <div className="relative">
+            <div
+              className="flex justify-between items-center px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
+              onClick={() => setDropdownViTriOpen(!isDropdownViTriOpen)}
+            >
+              <span className="text-xl font-bold">Vị trí</span>
+              <RxCaretDown className="text-2xl" />
             </div>
-            <ul>
-              <li>
-                {isDropdownViTri && (
-                  <div className=" absolute  w-1/5 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-                    <div className="p-2 max-h-80 overflow-y-auto">
-                      <ul>
-                        {sortedViTri.map(([location, count]) => (
-                          <li
-                            key={location}
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center space-x-2 py-2"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedViTri.includes(location)}
-                              onChange={() => handleLocationChange(location)}
-                              className="form-checkbox"
-                            />
-                            <span className="text-black">{location}</span>
-                            <span className="ml-2 text-gray-500">
-                              ({count})
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Các nút Cancel và Apply */}
-                    <div className="flex justify-between items-center px-4 py-2 border-t border-gray-300">
-                      <button
-                        onClick={handleCancel}
-                        className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleApply}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </li>
-            </ul>
-          </div>
-
-          <div onClick={() => handleToggleDropdown("tinhThanh")}>
-            <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-300 hover:rounded-lg cursor-pointer">
-              <button className="text-xl  font-bold pr-3 ">Tỉnh Thành</button>
-              <RxCaretDown className="text-3xl" />
-            </div>
-            <ul>
-              <li>
-                {isDropdownTinhThanh && (
-                  <div className="absolute  bg-white border shadow-md z-10 mt-2 rounded-lg w-60">
-                    <div className="max-h-60 overflow-auto p-2">
-                      {/* Checkbox cho mỗi tỉnh thành */}
-                      {uniqueTinhThanh.map((tinhThanh, index) => (
-                        <label
-                          key={index}
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center space-x-2 mb-2"
-                        >
-                          <input
-                            type="checkbox"
-                            value={tinhThanh}
-                            checked={selectedTinhThanh.includes(tinhThanh)}
-                            onChange={() =>
-                              handleCheckboxChangeTinhThanh(tinhThanh)
-                            }
-                            className="form-checkbox"
-                          />
-                          <span className="text-black">{tinhThanh}</span>
-                        </label>
-                      ))}
-                    </div>
-
-                    {/* Button Apply và Cancel */}
-                    <div className="flex justify-between p-2">
-                      <button
-                        onClick={cancelTinhThanh}
-                        className="text-gray-600"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={applyTinhThanh}
-                        className="bg-blue-500 text-white px-4 py-1 rounded-lg"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </li>
-            </ul>
-          </div>
-          <div onClick={() => handleToggleDropdown("companies")}>
-            <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-300 hover:rounded-lg cursor-pointer">
-              <button className="text-xl pr-3  font-bold ">Danh nghiệp</button>
-              <RxCaretDown className="text-3xl" />
-            </div>
-            <ul>
-              <li>
-                {isDropdownCompanies && (
-                  <div className="absolute bg-white border shadow-md z-10 mt-2 rounded-lg w-60">
-                    <div className="max-h-60 overflow-auto p-2">
-                      {/* Checkbox cho mỗi công ty */}
-                      {uniqueCompanies.map((tenCongTy, index) => (
-                        <label
-                          key={index}
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center space-x-2 mb-2"
-                        >
-                          <input
-                            type="checkbox"
-                            value={tenCongTy}
-                            checked={selectedCompanies.includes(tenCongTy)}
-                            onChange={() =>
-                              handleCheckboxChangeCompanies(tenCongTy)
-                            }
-                            className="form-checkbox"
-                          />
-                          <span className="text-black">{tenCongTy}</span>
-                        </label>
-                      ))}
-                    </div>
-
-                    {/* Button Apply và Cancel */}
-                    <div className="flex justify-between p-2">
-                      <button
-                        onClick={cancelCompanies}
-                        className="text-gray-600"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={applyCompanies}
-                        className="bg-blue-500 text-white px-4 py-1 rounded-lg"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </li>
-            </ul>
-          </div>
-          <div onClick={() => handleToggleDropdown("open")}>
-            <div className="flex justify-between items-center px-4 py-2 hover:bg-gray-300 hover:rounded-lg cursor-pointer">
-              <button className="text-xl pr-3 font-bold">
-                {selectedOption}
-              </button>
-              <RxCaretDown className="text-3xl" />
-            </div>
-            <ul>
-              <li>
-                {isDropdownOpen && (
-                  <div className="absolute left-200 w-1/5 bg-white border rounded-lg shadow-lg z-10">
-                    {options.map((option, index) => (
-                      <div
-                        key={index}
-                        className={`px-4 py-2 hover:bg-[#0cc0df] rounded-lg ${
-                          selectedOption === option ? "font-bold bg-white" : ""
-                        } cursor-pointer`}
-                        onClick={() => handleOptionClick(option)}
-                      >
-                        {option}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div className="flex ">
-        <span className="text-black font-bold py-2 px-4">Lọc Theo:</span>
-        <div className="flex space-x-2 ">
-          {FilterPosition ? (
-            FilterPosition.map((position, index) => (
-              <span
-                className="text-black p-2 bg-gray-200 rounded-lg"
-                key={index}
-              >
-                {position}
-              </span>
-            ))
-          ) : (
-            <span></span>
-          )}
-          {FilterProvince ? (
-            FilterProvince.map((province, index) => (
-              <span
-                className="text-black p-2 bg-gray-200 rounded-lg"
-                key={index}
-              >
-                {province}
-              </span>
-            ))
-          ) : (
-            <span></span>
-          )}
-          {FilterCompanies ? (
-            FilterCompanies.map((companies, index) => (
-              <span
-                className="text-black p-2 bg-gray-200 rounded-lg"
-                key={index}
-              >
-                {companies}
-              </span>
-            ))
-          ) : (
-            <span></span>
-          )}
-          <button
-            className=" px-2 py-1 m-0 color-item rounded-lg text-right items-right"
-            onClick={() => RemoveFilter()}
-          >
-            Xóa Lọc
-          </button>
-        </div>
-      </div>
-
-      <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 py-2 ">
-        {filteredJobs.length > 0
-          ? filteredJobs.map((job) => (
-              <div
-                key={job.idBaiDang}
-                className="bg-gray-700 px-4 py-3 rounded-lg shadow-md relative"
-              >
-                <div className="flex items-center space-x-3">
-                  <img
-                    src={job.logo}
-                    alt={job.tenCongTy}
-                    className="rounded-full w-16 h-16"
-                  />
-                  <div className="mt-2">
-                    <p className="font-semibold py-1 px-2  m-0">
-                      {job.tenCongTy}
-                    </p>
-                    <p className="text-base text-white py-1 px-2  m-0">
-                      {job.tenBaiDang}
-                    </p>
-                  </div>
-                </div>
-                {/* Hạn chót ở góc trên bên phải */}
-                <p className="absolute top-2 bg-orange-500 p-1 rounded-lg right-2 text-sm">
-                  Deadline: {job.hanChot}
-                </p>
-
-                <p className="text-sm px-2 m-0">{job.tenViTri}</p>
-                <div className="mt-2 text-sm px-2 flex justify-between">
-                  <p className="m-0">{job.tenTinhThanh}</p>
-                  <p>{job.soLuong}</p>
-                </div>
-                <Link
-                  to={`/job/${job.idBaiDang}`}
-                  className="color-item hover:no-underline hover:text-[#0cc0df]"
-                >
-                  <p className="text-sm px-2 m-0 text-right">Xem chi tiết</p>
-                </Link>
-              </div>
-            ))
-          : currentJobListings.map((job) => (
-              <div
-                key={job.idBaiDang}
-                className="bg-gray-700 px-4 py-3 rounded-lg shadow-md relative"
-              >
-                <div className="flex items-center space-x-3">
-                  <img
-                    src={job.logo}
-                    alt={job.tenCongTy}
-                    className="rounded-full w-16 h-16"
-                  />
-                  <div className="mt-4">
-                    <p className="font-semibold py-1 px-2 m-0">
-                      {job.tenCongTy}
-                    </p>
-                    <p
-                      className=" text-white px-2 py-1 m-0 truncate"
-                      style={{
-                        maxWidth: "100%",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
+            {isDropdownViTriOpen && (
+              <div className="absolute bg-white border shadow-lg mt-2 rounded-lg w-60 z-10">
+                <div className="max-h-60 overflow-y-auto p-2">
+                  {uniqueViTri.map((viTri, index) => (
+                    <label
+                      key={index}
+                      className="flex items-center space-x-2 mb-2"
                     >
-                      {job.tenBaiDang}
-                    </p>
-                  </div>
+                      <input
+                        type="checkbox"
+                        checked={selectedViTri.includes(viTri)}
+                        onChange={() =>
+                          setSelectedViTri((prev) =>
+                            prev.includes(viTri)
+                              ? prev.filter((item) => item !== viTri)
+                              : [...prev, viTri]
+                          )
+                        }
+                        className="form-checkbox"
+                      />
+                      <span>{viTri}</span>
+                    </label>
+                  ))}
                 </div>
-                {/* Hạn chót ở góc trên bên phải */}
-                <p className="absolute top-2 bg-orange-500 p-1 rounded-lg right-2 text-sm">
-                  Deadline: {job.hanChot}
-                </p>
-
-                <p className="text-sm px-2 m-0">{job.tenViTri}</p>
-                <div className="mt-2 text-sm px-2 flex justify-between">
-                  <p className="m-0">{job.tenTinhThanh}</p>
-                  <p>Số lượng: {job.soLuong}</p>
+                <div className="flex justify-between p-2 border-t">
+                  <button
+                    onClick={() => setDropdownViTriOpen(false)}
+                    className="px-4 py-1 bg-gray-200 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={applyFilters}
+                    className="px-4 py-1 bg-blue-500 text-white rounded-lg"
+                  >
+                    Apply
+                  </button>
                 </div>
-                <Link
-                  to={`/job/${job.idBaiDang}`}
-                  className="color-item hover:no-underline hover:text-[#0cc0df]"
-                >
-                  <p className="text-sm px-2 m-0 text-right">Xem chi tiết</p>
-                </Link>
               </div>
-            ))}
+            )}
+          </div>
+
+          {/* Dropdown Tỉnh Thành */}
+          <div className="relative">
+            <div
+              className="flex justify-between items-center px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
+              onClick={() => setDropdownTinhThanhOpen(!isDropdownTinhThanhOpen)}
+            >
+              <span className="text-xl font-bold">Tỉnh Thành</span>
+              <RxCaretDown className="text-2xl" />
+            </div>
+            {isDropdownTinhThanhOpen && (
+              <div className="absolute bg-white border shadow-lg mt-2 rounded-lg w-60 z-10">
+                <div className="max-h-60 overflow-y-auto p-2">
+                  {uniqueTinhThanh.map((tinhThanh, index) => (
+                    <label
+                      key={index}
+                      className="flex items-center space-x-2 mb-2"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedTinhThanh.includes(tinhThanh)}
+                        onChange={() =>
+                          setSelectedTinhThanh((prev) =>
+                            prev.includes(tinhThanh)
+                              ? prev.filter((item) => item !== tinhThanh)
+                              : [...prev, tinhThanh]
+                          )
+                        }
+                        className="form-checkbox"
+                      />
+                      <span>{tinhThanh}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="flex justify-between p-2 border-t">
+                  <button
+                    onClick={() => setDropdownTinhThanhOpen(false)}
+                    className="px-4 py-1 bg-gray-200 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={applyFilters}
+                    className="px-4 py-1 bg-blue-500 text-white rounded-lg"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Dropdown Công Ty */}
+          <div className="relative">
+            <div
+              className="flex justify-between items-center px-4 py-2 bg-gray-200 rounded-lg cursor-pointer"
+              onClick={() => setDropdownCompaniesOpen(!isDropdownCompaniesOpen)}
+            >
+              <span className="text-xl font-bold">Công Ty</span>
+              <RxCaretDown className="text-2xl" />
+            </div>
+            {isDropdownCompaniesOpen && (
+              <div className="absolute bg-white border shadow-lg mt-2 rounded-lg w-60 z-10">
+                <div className="max-h-60 overflow-y-auto p-2">
+                  {uniqueCompanies.map((company, index) => (
+                    <label
+                      key={index}
+                      className="flex items-center space-x-2 mb-2"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCompanies.includes(company)}
+                        onChange={() =>
+                          setSelectedCompanies((prev) =>
+                            prev.includes(company)
+                              ? prev.filter((item) => item !== company)
+                              : [...prev, company]
+                          )
+                        }
+                        className="form-checkbox"
+                      />
+                      <span>{company}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="flex justify-between p-2 border-t">
+                  <button
+                    onClick={() => setDropdownCompaniesOpen(false)}
+                    className="px-4 py-1 bg-gray-200 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={applyFilters}
+                    className="px-4 py-1 bg-blue-500 text-white rounded-lg"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={clearFilters}
+          className="px-4 py-2 bg-red-500 text-white rounded-lg"
+        >
+          Xoá Lọc
+        </button>
       </div>
-      <div className="pagination text-black justify-between p-4 text-xl font-bold">
-        <div className="flex items-center">
-          <MdArrowBackIos />
-          <button onClick={handlePreviousPage} disabled={currentPage === 1}>
-            Previous
-          </button>
-        </div>
-        <span>{`Page ${currentPage} of ${totalPages}`}</span>
-        <div className="flex items-center">
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
+
+      {/* Job Listings */}
+      <div className="mt-8 grid text-white grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {currentJobs.map((job) => (
+          <div
+            key={job.idBaiDang}
+            className="bg-gray-700 px-4 py-3 rounded-lg shadow-md relative"
           >
-            Next{" "}
-          </button>
-          <GrNext />
-        </div>
+            <div className="flex items-center space-x-3">
+              <img
+                src={job.logo}
+                alt={job.tenCongTy}
+                className="rounded-full w-16 h-16"
+              />
+              <div className="mt-2">
+                <p className="font-semibold py-1 px-2  m-0">{job.tenCongTy}</p>
+                <p className="text-base text-white py-1 px-2  m-0">
+                  {job.tenBaiDang}
+                </p>
+              </div>
+            </div>
+            {/* Hạn chót ở góc trên bên phải */}
+            <p className="absolute top-2 bg-orange-500 p-1 rounded-lg right-2 text-sm">
+              Deadline: {job.hanChot}
+            </p>
+
+            <p className="text-sm px-2 m-0">{job.tenViTri}</p>
+            <div className="mt-2 text-sm px-2 flex justify-between">
+              <p className="m-0">{job.tenTinhThanh}</p>
+              <p>{job.soLuong}</p>
+            </div>
+            <Link
+              to={`/job/${job.idBaiDang}`}
+              className="color-item hover:no-underline hover:text-[#0cc0df]"
+            >
+              <p className="text-sm px-2 m-0 text-right">Xem chi tiết</p>
+            </Link>
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-300 rounded-lg"
+        >
+          Previous
+        </button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-300 rounded-lg"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

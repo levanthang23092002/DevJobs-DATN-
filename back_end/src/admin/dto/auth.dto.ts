@@ -1,4 +1,4 @@
-import { IsEmpty } from 'class-validator';
+import { IsEmpty, IsNumberString } from 'class-validator';
 
 export class UpdatePositionDto {
   @IsEmpty()
@@ -20,6 +20,12 @@ export class UpdateProvinceDto {
 
   @IsEmpty()
   trangThai: string;
+
+  @IsNumberString()
+  kinhDo: string;
+
+  @IsNumberString()
+  viDo: string;
 }
 
 export class UpdateLevelDto {
@@ -31,9 +37,21 @@ export class UpdateLevelDto {
 
   @IsEmpty()
   trangThai: string;
+
+  @IsNumberString()
+  mucDo: string;
 }
 
 export class AddManagerDto {
   @IsEmpty()
   ten: string;
+
+  @IsNumberString()
+  kinhDo: string;
+
+  @IsNumberString()
+  viDo: string;
+
+  @IsNumberString()
+  mucDo: string;
 }

@@ -19,26 +19,40 @@ function ViewJob() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Gọi API để lấy dữ liệu công việc hiện tại
         const job = await AuthApi.getAllAuth(`/post/${idJob}`);
-        const jobList = await AuthApi.getAllAuth("/post-many");
         setJob(job);
+
+        // Gọi API để lấy danh sách công việc
+        const jobList = await AuthApi.getAllAuth("/post-many");
         setJobList(jobList);
-        socket.on("update_post_company", async (post) => {
-          const job = await AuthApi.getAllAuth(`/post/${idJob}`);
-          setJob(job);
-        });
+
+        // Lắng nghe sự kiện socket
+        const handleUpdatePost = async (post) => {
+          if (post.idBaiDang === parseInt(idJob)) {
+            const updatedJob = await AuthApi.getAllAuth(`/post/${idJob}`);
+            setJob(updatedJob);
+          }
+        };
+
+        socket.on("update_post_company", handleUpdatePost);
+
+        // Hủy đăng ký socket khi component unmount hoặc khi `idJob` thay đổi
+        return () => {
+          socket.off("update_post_company", handleUpdatePost);
+        };
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [idJob]); // Thêm `idJob` vào mảng phụ thuộc
+
   const handleApply = async () => {
     var user = JSON.parse(sessionStorage.getItem("data"));
     await CandidateApi.AddInfo(`/${user.id}/apply/${idJob}`);
     await CandidateApi.AddInfo(`/${user.id}/add-notifycation/${idJob}`);
-    
   };
 
   return (
@@ -118,6 +132,17 @@ function ViewJob() {
                     <strong>Cấp Độ:</strong> {job.tenCapDo}
                   </p>
                   <p className="m-1">
+                    <strong>Trình Độ:</strong> {job.trinhDo}
+                  </p>
+                  <p className="m-1">
+                    <strong>Kinh Nghiệm:</strong>{" "}
+                    {job.kinhNghiem
+                      ? job.kinhNghiem < 12
+                        ? `${job.kinhNghiem} tháng`
+                        : `${Math.floor(job.kinhNghiem / 12)} năm`
+                      : "Không yêu cầu"}
+                  </p>
+                  <p className="m-1">
                     <strong>Số lượng cần tuyển:</strong> {job.soLuong} người
                   </p>
                 </div>
@@ -143,7 +168,7 @@ function ViewJob() {
                   </p>
                   <p className="flex items-center space-x-2">
                     <SlPhone className="text-lg text-gray-600" />
-                    <span className="text-sm text-gray-800">{job.sDT}</span>
+                    <span className="text-sm text-gray-800">{job.sdt}</span>
                   </p>
                   <p className="flex items-center space-x-2">
                     <TbWorld className="text-lg text-gray-600" />

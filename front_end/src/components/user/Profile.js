@@ -6,17 +6,16 @@ import { toast } from "react-toastify";
 const Profile = () => {
   const [candidate, setCandidate] = useState({
     idNguoiDung: "",
-    ten: "John Carter",
+    ten: "",
     idViTri: 1,
-    email: "abc@gmail.com",
+    email: "",
     idTinhThanh: 1,
-    trangThai: "Chờ Duyệt",
-    anhDaiDien:
-      "https://gratisography.com/wp-content/uploads/2024/03/gratisography-funflower-800x525.jpg",
-    ngaySinh: "1990-01-01",
-    sdt: "123456789",
-    luongBatDau: 100000000,
-    luongKetThuc: 200000000,
+    trangThai: "",
+    anhDaiDien: "",
+    ngaySinh: "",
+    sdt: "",
+    luongBatDau: 0,
+    luongKetThuc: 0,
     idCapDo: 1,
   });
   const [viTriOptions, setViTriOptions] = useState([
@@ -39,6 +38,7 @@ const Profile = () => {
         const tinhThanh = await AuthApi.getAllAuth(`all-city`);
         const viTri = await AuthApi.getAllAuth(`all-position`);
         const capDo = await AuthApi.getAllAuth(`all-level`);
+        console.log(info)
         setViTriOptions(viTri);
         setTinhThanhOptions(tinhThanh);
         setCapDoOptions(capDo);
@@ -50,7 +50,16 @@ const Profile = () => {
 
     fetchData();
   }, []);
-
+  const education_level = [
+    "Chứng chỉ nghề",
+    "Cao đẳng",
+    "Cử nhân",
+    "Kỹ sư",
+    "Thạc sĩ",
+    "Tiến sĩ",
+    "Phó giáo sư",
+    "Giáo sư",
+  ];
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCandidate((prev) => ({
@@ -63,7 +72,6 @@ const Profile = () => {
     const file = e.target.files[0]; // Lấy file từ input
     if (file) {
       try {
-   
         const url = await uploadImage(file);
         if (url) {
           setCandidate((prev) => ({
@@ -84,12 +92,26 @@ const Profile = () => {
     setIsEditing(true);
   };
 
-  const saveData = async() => {
-    setIsEditing(false);
+  const saveData = async () => {
+    if (
+      candidate.kinhnghiemUnit !== null &&
+      candidate.kinhnghiemUnit == "year"
+    ) {
+      candidate.kinhnghiem = parseInt(candidate.kinhnghiem * 12);
+    } else {
+      candidate.kinhnghiem = parseInt(candidate.kinhnghiem);
+    }
+    const { kinhnghiemUnit, ...rest } = candidate;
+    setCandidate(rest);
+    console.log(candidate)
     var user = JSON.parse(sessionStorage.getItem("data"));
-    await CandidateApi.updateInfo(`/${user.id}/update`, candidate)
+    await CandidateApi.updateInfo(`/${user.id}/update`, candidate);
+   
+   setTimeout(async() => {
+    setIsEditing(false);
     const info = await CandidateApi.getInfo(`/${user.id}`);
     setCandidate(info);
+   }, 1000);
   };
 
   return (
@@ -217,6 +239,72 @@ const Profile = () => {
             )}
           </div>
         </div>
+        <div className="mt-4 grid grid-cols-2 gap-4">
+          {/* Tỉnh thành */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Trình độ
+            </label>
+            {isEditing ? (
+              <select
+                name="trinhDo"
+                value={candidate.trinhDo}
+                required
+                onChange={handleChange}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Chọn Trình Độ</option>
+                {education_level.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                {candidate.trinhDo}
+              </p>
+            )}
+          </div>
+
+          {/* Cấp độ */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Kinh nghiệm
+            </label>
+            {isEditing ? (
+            <div className="flex mt-1">
+            <input
+              type="number"
+              id="kinhnghiem"
+              name="kinhnghiem"
+              value={candidate.kinhnghiem}
+              onChange={handleChange}
+              className="w-3/5 px-3 py-2 border rounded"
+              placeholder="Nhập số"
+            />
+            <select
+              id="kinhnghiemUnit"
+              name="kinhnghiemUnit"
+              value={candidate.KinhnghiemUnit}
+              onChange={handleChange}
+              className="w-2/5 px-3 py-2 border rounded ml-1"
+            >
+              <option value="month">Tháng</option>
+              <option value="year">Năm</option>
+            </select>
+          </div>
+            ) : (
+              <p className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+               {candidate.kinhnghiem
+                      ? candidate.kinhnghiem < 12
+                        ? `${candidate.kinhnghiem} tháng`
+                        : `${Math.floor(candidate.kinhnghiem / 12)} năm`
+                      : "Không yêu cầu"}
+              </p>
+            )}
+          </div>
+        </div>
 
         <div className="mt-4 space-y-4 boder-1">
           <div>
@@ -277,6 +365,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
+
         <div className="mt-4 grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -292,7 +381,7 @@ const Profile = () => {
                   required
                   className="mt-1  w-5/6 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 ></input>
-                <span className="w-1/6 px-2 font-bold" >VND</span>
+                <span className="w-1/6 px-2 font-bold">VND</span>
               </div>
             ) : (
               <div className="flex w-full jsutify-center items-center ">

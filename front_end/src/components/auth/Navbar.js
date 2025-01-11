@@ -23,6 +23,32 @@ function Navbar() {
   const [notificationList, setNotificationList] = useState([]);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const [submittedData, setSubmittedData] = useState(null);
+  const [showSchedule, setShowSchedule] = useState(false);
+
+  const handleViewSchedule = async (idBD, idTB) => {
+
+    await CandidateApi.updateInfo(`notification/${idTB}`, [])
+    const data = await CandidateApi.getInfo(
+      `/${user.id}/job/${idBD}/view-schedule`
+    );
+    const tb = await CandidateApi.getInfo(`/${user.id}/notifycation`);
+    setNotificationList(tb);
+
+    const date = new Date(data.thoiBatDau);
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+
+    // Định dạng ngày tháng năm
+    const formattedDate = `${date.getDate().toString().padStart(2, "0")}/${(
+      date.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}/${date.getFullYear()}`;
+    data.thoiBatDau = `${hours}:${minutes} ngày ${formattedDate}`
+    setSubmittedData(data);
+    setShowSchedule(true);
+  };
 
   const filteredNotifications = notificationList.filter((notification) =>
     filterMode === "Tất Cả" ? true : notification.trangThai === 0
@@ -79,7 +105,7 @@ function Navbar() {
     navigate("/");
   };
   return (
-    <nav className="bg-custom text-white px-2">
+    <nav className="bg-custom text-white px-2 fixed top-0 left-0 w-full z-50 shadow-lg">
       <div className=" mx-12 flex items-center justify-between">
         <ul className="flex gap-8 items-center m-0">
           <li>
@@ -151,7 +177,7 @@ function Navbar() {
                 />
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 top-12 mt-2 bg-white text-black rounded-md shadow-md w-64 max-h-96 z-10 overflow-y-auto">
+                  <div className="absolute right-0 top-12 mt-2 bg-blue-200 text-black rounded-md shadow-md w-64 max-h-96 z-10 overflow-y-auto">
                     <div className="sticky top-0 bg-white z-20 shadow-sm">
                       <h5 className="p-2 font-bold border-b">Thông Báo</h5>
                       <div className="flex space-x-2 items-center px-2 py-2">
@@ -173,20 +199,15 @@ function Navbar() {
                         </button>
                       </div>
                     </div>
-
-                    <ul className="p-0">
-                      {filteredNotifications.length > 0 ? (
-                        filteredNotifications.map((notification) => (
-                          <Link
-                            to={`/job/${notification.idBaiDang}`}
-                            className="no-underline text-black"
-                          >
-                            {" "}
+                    {user.quyen === "User" ? (
+                      <ul className="p-0">
+                        {filteredNotifications.length > 0 ? (
+                          filteredNotifications.map((notification) => (
                             <li
                               key={notification.idThongBao}
                               className="px-2 py-2 border-b border-gray-300 cursor-pointer hover:bg-gray-100"
                               onClick={() =>
-                                markAsRead(notification.idThongBao)
+                                handleViewSchedule(notification.idBaiDang, notification.idThongBao)
                               }
                             >
                               <div className="flex space-x-2 items-center">
@@ -211,14 +232,60 @@ function Navbar() {
                                 </div>
                               </div>
                             </li>
-                          </Link>
-                        ))
-                      ) : (
-                        <p className="p-4 text-center text-gray-500">
-                          Không có thông báo
-                        </p>
-                      )}
-                    </ul>
+                          ))
+                        ) : (
+                          <p className="p-4 text-center text-gray-500">
+                            Không có thông báo
+                          </p>
+                        )}
+                      </ul>
+                    ) : (
+                      <ul className="p-0">
+                        {filteredNotifications.length > 0 ? (
+                          filteredNotifications.map((notification) => (
+                            <Link
+                              to={`history/update-post/${notification.idBaiDang}`}
+                              className="no-underline text-black"
+                            >
+                              {" "}
+                              <li
+                                key={notification.idThongBao}
+                                className="px-2 py-2 border-b border-gray-300 cursor-pointer hover:bg-gray-100"
+                                onClick={() =>
+                                  markAsRead(notification.idThongBao)
+                                }
+                              >
+                                <div className="flex space-x-2 items-center">
+                                  <img
+                                    src={notification.hinhAnh}
+                                    className="h-10 w-10 rounded-full"
+                                    alt="Notification"
+                                  />
+                                  <div>
+                                    <p
+                                      className={` text-sm m-0 ${
+                                        notification.trangThai === 0
+                                          ? "font-bold"
+                                          : ""
+                                      }`}
+                                    >
+                                      {notification.noidung}
+                                    </p>
+                                    <p className="text-sm text-gray-500 m-0">
+                                      {getTimeAgo(notification.thoiGian)}
+                                    </p>
+                                  </div>
+                                </div>
+                              </li>
+                            </Link>
+                          ))
+                        ) : (
+                          <p className="p-4 text-center text-gray-500">
+                            Không có thông báo
+                          </p>
+                        )}
+                      </ul>
+                    )}
                   </div>
                 )}
               </div>
@@ -331,6 +398,36 @@ function Navbar() {
           )}
         </div>
       </div>
+      {showSchedule && submittedData && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 border border-gray-300 text-gray-700 rounded-md w-full max-w-md shadow-lg">
+            <button
+              onClick={() => setShowSchedule(false)}
+              className="mb-4 p-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-200"
+            >
+              Đóng
+            </button>
+            <h3 className="text-lg font-semibold">Lịch Phỏng Vấn</h3>
+            <div className="mb-3">
+              <p>
+                <strong>Thời gian :</strong> {submittedData.thoiBatDau}
+              </p>
+              <p>
+                <strong>Kiểu phỏng vấn:</strong> {submittedData.kieuPhongVan}
+              </p>
+              {submittedData.kieuPhongVan === "Online" ? (
+                <p>
+                  <strong>Link phỏng vấn:</strong> {submittedData.link}
+                </p>
+              ) : (
+                <p>
+                  <strong>Địa chỉ phỏng vấn:</strong> {submittedData.diaChi}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

@@ -17,12 +17,14 @@ const PostJobForm = () => {
     luongKetThuc: "",
     diaChiCuThe: "",
     hanChot: "",
+    kinhnghiem: "",
+    TrinhDo: "",
   });
 
-  const [yeuCauList, setYeuCauList] = useState([""]); 
-  const [tinhThanhOptions, setTinhThanhOptions] = useState([""]); 
-  const [viTriOptions, setViTriOptions] = useState([""]); 
-  const [capDoOptions, setCapDoOptions] = useState([""]); 
+  const [yeuCauList, setYeuCauList] = useState([""]);
+  const [tinhThanhOptions, setTinhThanhOptions] = useState([""]);
+  const [viTriOptions, setViTriOptions] = useState([""]);
+  const [capDoOptions, setCapDoOptions] = useState([""]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,7 +51,16 @@ const PostJobForm = () => {
       [name]: files ? files[0] : value, // Xử lý file cho hình ảnh
     });
   };
-
+  const education_level = [
+    "Chứng chỉ nghề",
+    "Cao đẳng",
+    "Cử nhân",
+    "Kỹ sư",
+    "Thạc sĩ",
+    "Tiến sĩ",
+    "Phó giáo sư",
+    "Giáo sư",
+  ];
   const addYeuCau = () => setYeuCauList([...yeuCauList, ""]);
 
   const removeYeuCau = (index) => {
@@ -81,12 +92,34 @@ const PostJobForm = () => {
       const url = await uploadImage(formData.hinhAnh);
       formData.hinhAnh = url;
     }
-
+    if (
+      formData.kinhnghiemUnit !== null &&
+      formData.kinhnghiemUnit !== "year"
+    ) {
+      formData.kinhnghiem = parseInt(formData.kinhnghiem * 12);
+    } else {
+      formData.kinhnghiem = parseInt(formData.kinhnghiem);
+    }
+    const { kinhnghiemUnit, ...rest } = formData; // Tách kinhnghiemUnit và giữ lại các phần khác
+    setFormData(rest);
     const postJob = await CompanyApi.AddInfo(`/${user.id}/job/add`, formData);
-   console.log(postJob.idBaiDang)
-    const request = await CompanyApi.AddInfo(`request/${postJob.data}/add-many`, yeuCauList)
- 
-  
+    await CompanyApi.AddInfo(`request/${postJob.data.idBaiDang}/add-many`, yeuCauList);
+    setFormData({
+      idTinhThanh: "",
+      idViTri: "",
+      idCapDo: "",
+      tenBaiDang: "",
+      moTa: "",
+      soLuong: 1,
+      hinhAnh: null,
+      luongBatDau: "",
+      luongKetThuc: "",
+      diaChiCuThe: "",
+      hanChot: "",
+      kinhnghiem: "",
+      TrinhDo: "",
+    })
+    setYeuCauList("")
   };
 
   return (
@@ -141,10 +174,67 @@ const PostJobForm = () => {
               </select>
             </div>
           </div>
-
+          <div className="mt-2 grid grid-cols-2 gap-4">
+            <div className="flex-1">
+              <label
+                htmlFor="TrinhDo"
+                className="font-bold"
+              >
+                Trình Độ
+              </label>
+              <select
+                id="TrinhDo"
+                name="TrinhDo"
+                value={formData.TrinhDo}
+                onChange={handleInputChange}
+                className="border-2 border-gray-400 p-2 m-0 rounded w-full"
+                required
+              >
+                <option value="">Chọn Trình Độ</option>
+                {education_level.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="kinhnghiem"
+                className="font-bold"
+              >
+                Kinh Nghiệm
+              </label>
+              <div className="flex items-center space-x-2">
+                {/* Input số kinh nghiệm */}
+                <input
+                  type="number"
+                  id="kinhnghiem"
+                  name="kinhnghiem"
+                  value={formData.kinhnghiem}
+                  onChange={handleInputChange}
+                  className="w-3/5 px-4 py-2 border-2 border-gray-400 p-2 m-0 rounded w-full"
+                  placeholder="Nhập số"
+                  required
+                />
+                {/* Dropdown chọn đơn vị */}
+                <select
+                  id="kinhnghiemUnit"
+                  name="kinhnghiemUnit"
+                  value={formData.kinhnghiemUnit}
+                  onChange={handleInputChange}
+                  className="w-2/5 px-4 py-2 border-2 border-gray-400 p-2 m-0 rounded w-full"
+                  required
+                >
+                  <option value="month">Tháng</option>
+                  <option value="year">Năm</option>
+                </select>
+              </div>
+            </div>
+          </div>
           <div className="mt-2 grid grid-cols-2 gap-4">
             <div>
-              <label className=" font-bold">Tỉnh Thành</label>
+              <label className=" font-bold">Cấp Độ</label>
               <select
                 name="idCapDo"
                 value={formData.idCapDo}

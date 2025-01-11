@@ -38,4 +38,17 @@ export class NotifycationRepository {
       trangThai: thongBao.trangThai,
     }));
   }
+
+  async addNotifycation(idND, idBD, noidung) {
+    const thongBao = await this.prisma.tHONGBAO.create({
+      data: {
+        idNguoiDung: idND,
+        trangThai: 0,
+        noiDung: noidung,
+        thoiGianTB: new Date(),
+        idBaiDang: idBD,
+      },
+    });
+    return thongBao;
+  }
 }

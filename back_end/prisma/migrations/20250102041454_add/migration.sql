@@ -1,0 +1,29 @@
+-- AlterTable
+ALTER TABLE `nguoidung` ADD COLUMN `TrinhDo` VARCHAR(191) NULL,
+    ADD COLUMN `kinhnghiem` INTEGER NULL;
+
+-- CreateTable
+CREATE TABLE `QUANHUYEN` (
+    `idQuanHuyen` INTEGER NOT NULL AUTO_INCREMENT,
+    `tenQuanHuyen` VARCHAR(191) NOT NULL,
+    `trangThai` VARCHAR(191) NOT NULL DEFAULT 'Đã Duyệt',
+    `idTinhThanh` INTEGER NULL,
+
+    PRIMARY KEY (`idQuanHuyen`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `PHUONGXA` (
+    `idPhuongXa` INTEGER NOT NULL AUTO_INCREMENT,
+    `tenPhuongXa` VARCHAR(191) NOT NULL,
+    `trangThai` VARCHAR(191) NOT NULL DEFAULT 'Đã Duyệt',
+    `idQuanHuyen` INTEGER NULL,
+
+    PRIMARY KEY (`idPhuongXa`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `QUANHUYEN` ADD CONSTRAINT `QUANHUYEN_idTinhThanh_fkey` FOREIGN KEY (`idTinhThanh`) REFERENCES `TINHTHANH`(`idTinhThanh`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `PHUONGXA` ADD CONSTRAINT `PHUONGXA_idQuanHuyen_fkey` FOREIGN KEY (`idQuanHuyen`) REFERENCES `QUANHUYEN`(`idQuanHuyen`) ON DELETE SET NULL ON UPDATE CASCADE;

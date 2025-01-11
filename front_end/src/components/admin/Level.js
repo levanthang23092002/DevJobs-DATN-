@@ -1,23 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit } from "react-icons/fa";
 import { MdAddCircle } from "react-icons/md";
-
 import AdminApi from "../../api/admin/admin";
 
-const level = await AdminApi.getAdmin("/all-level");
+
 const LevelManager = () => {
-  const [levels, setLevels] = useState(level);
+  const [levels, setLevels] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editedLevel, setEditedLevel] = useState({
     tenCapDo: "",
     trangThai: "",
+    mucDo:"",
   });
   const [isAdding, setIsAdding] = useState(false);
   const [newLevel, setNewLevel] = useState({
     tenCapDo: "",
     trangThai: "Đã Duyệt",
+    mucDo:"",
   });
-
+   useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const level = await AdminApi.getAdmin("/all-level");
+          setLevels(level)
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+  
+      fetchData();
+    }, []);
   const handleEditClick = (level) => {
     setEditingId(level.idCapDo);
     setEditedLevel(level);
@@ -47,11 +59,11 @@ const LevelManager = () => {
 
   const handleSaveNewLevel = async () => {
     if (newLevel.tenCapDo.trim()) {
-      console.log(newLevel.tenCapDo.trim());
       const data = {
         ten: newLevel.tenCapDo.trim(),
+        mucDo: newLevel.mucDo,
       };
-      const news = await AdminApi.AddManager("add/level", data);
+     await AdminApi.AddManager("add/level", data);
       const level = await AdminApi.getAdmin("/all-level");
       setLevels(level);
       setIsAdding(false);
@@ -90,6 +102,17 @@ const LevelManager = () => {
                       }
                       className="border rounded p-1 text-sm"
                     />
+                      <input
+                      type="number"
+                      value={editedLevel.mucDo}
+                      onChange={(e) =>
+                        setEditedLevel({
+                          ...editedLevel,
+                          mucDo: e.target.value,
+                        })
+                      }
+                      className="border rounded p-1 ml-2 text-sm"
+                    />
                     <select
                       value={editedLevel.trangThai}
                       onChange={(e) =>
@@ -107,6 +130,7 @@ const LevelManager = () => {
                 ) : (
                   <div className="flex items-center justify-between">
                     <h2 className="font-bold text-sm mr-2">{level.tenCapDo}</h2>
+                    <h2 className="text-sm mr-2">Mức độ: {level.mucDo}</h2>
                     <span
                       className={`px-2 py-1 text-xs rounded-full ${
                         level.trangThai === "Đã Duyệt"
@@ -156,8 +180,8 @@ const LevelManager = () => {
 
       <div className="shadow-md bg-custom-item justify-between p-4 flex">
         {isAdding && (
-          <div className="flex items-center justify-between bg-white shadow-md rounded-md px-3 py-2">
-            <div>
+          <div className="flex items-center justify-between bg-white shadow-md rounded-md px-1 py-2">
+            <div className="flex">
               <input
                 type="text"
                 value={newLevel.tenCapDo}
@@ -165,6 +189,15 @@ const LevelManager = () => {
                   setNewLevel({ ...newLevel, tenCapDo: e.target.value })
                 }
                 placeholder="Tên cấp độ"
+                className="border rounded p-1 mr-2 text-sm"
+              />
+               <input
+                type="number"
+                value={newLevel.mucDo}
+                onChange={(e) =>
+                  setNewLevel({ ...newLevel, mucDo: e.target.value })
+                }
+                placeholder="Mức độ"
                 className="border rounded p-1 text-sm"
               />
             </div>

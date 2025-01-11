@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { FaHome, FaUser, FaCog } from "react-icons/fa";
 import { GoPasskeyFill } from "react-icons/go";
@@ -6,10 +5,15 @@ import { IoPersonAdd } from "react-icons/io5";
 import { MdPostAdd } from "react-icons/md";
 import { IoIosBusiness } from "react-icons/io";
 import logo from "../../assets/image/logo-removebg-preview.png";
+import AdminApi from "../../api/admin/admin";
 
 const Sidebar = () => {
+  const [admin, setadmin] = useState({
+    anhDaiDien: null,
+    ten: null,
+  });
   const [activeTab, setActiveTab] = useState("Dashboard");
-  // Hàm xử lý khi tab được click
+
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);
   };
@@ -33,6 +37,21 @@ const Sidebar = () => {
         }
       }
     });
+
+    const fetchAdminData = async () => {
+      const data = await sessionStorage.getItem("admin");
+      if (data) {
+        const adminData = JSON.parse(data);
+        try {
+          const response = await AdminApi.getAdmin(`/admin/${adminData.id}`);
+          console.log(response.data);
+          setadmin(response.data);
+        } catch (error) {
+          console.error("Error fetching admin data:", error);
+        }
+      }
+    };
+    fetchAdminData();
   }, [activeTab]);
 
   return (
@@ -87,7 +106,7 @@ const Sidebar = () => {
             activeTab === "AddAdmin" ? "bg-gray-800" : "hover:bg-gray-800"
           }`}
         >
-          <IoPersonAdd  className="text-white" />
+          <IoPersonAdd className="text-white" />
           Thêm Admin
         </button>
         <button
@@ -98,7 +117,7 @@ const Sidebar = () => {
               : "hover:bg-gray-800"
           }`}
         >
-          <GoPasskeyFill  className="text-white" />
+          <GoPasskeyFill className="text-white" />
           Đổi Mật Khẩu
         </button>
         <button
@@ -115,12 +134,15 @@ const Sidebar = () => {
       {/* User profile */}
       <div className="flex items-center px-4 py-4 mt-auto bg-slate-950">
         <img
-          src="https://gratisography.com/wp-content/uploads/2024/03/gratisography-funflower-800x525.jpg"
+          src={
+            admin.anhDaiDien ||
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZwkVfEKEdjFIryQmVhdVlLIwBGfGBzAA3GA&s"
+          }
           alt="Profile"
           className="w-10 h-10 rounded-full"
         />
         <div className="ml-3">
-          <div className="text-sm font-semibold">John Carter</div>
+          <div className="text-sm font-semibold">{admin.ten}</div>
           <button
             className="text-xs text-gray-400"
             onClick={() => handleTabClick("Sitting")}

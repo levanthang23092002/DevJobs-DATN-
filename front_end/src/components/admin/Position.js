@@ -1,23 +1,35 @@
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import { FaEdit } from "react-icons/fa";
 import { MdAddCircle } from "react-icons/md";
 
 import AdminApi from "../../api/admin/admin";
 
-const position = await AdminApi.getAdmin("/all-position");
-const PositionManager = () => {
-  const [positions, setPositions] = useState(position);
 
+const PositionManager = () => {
+  const [positions, setPositions] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editedPosition, setEditedPosition] = useState({
     tenViTri: "",
     trangThai: "",
   });
-  const [isAdding, setIsAdding] = useState(false);
+  const [isAdding, setIsAdding]  = useState(false);
   const [newPosition, setNewPosition] = useState({
     tenViTri: "",
     trangThai: "Đã Duyệt",
   });
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const positions = await AdminApi.getAdmin("/all-position");
+          setPositions(positions)
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+  
+      fetchData();
+    }, []);
 
   const handleEditClick = (position) => {
     setEditingId(position.idViTri);

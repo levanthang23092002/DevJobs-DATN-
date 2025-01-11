@@ -51,7 +51,7 @@ function App() {
           <Route path="/history/update-post/:idJob" element={<UpdatePostJob />} />
           <Route path="/view/CV/:idCandidate" element={<ViewCVCandidate />} />
         </Route>
-        <Route path="/login-addmin" element={<AdminLogin />} />
+        <Route path="/login-admin" element={<AdminLogin />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
       <ToastContainer autoClose={5000} position="top-right" />

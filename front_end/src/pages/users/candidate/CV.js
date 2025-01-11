@@ -1087,7 +1087,7 @@ const CVFormScreen = () => {
               </h2>
               <p className="text-xl p-0 m-0 uppercase">
                 {" "}
-                {formData.tenVitri} - {formData.tenCapDo}
+                {formData.tenVitri} - {formData.tenCapDo} - {formData.trinhDo}
               </p>
               <div className="flex mt-1">
                 <p className="text-gray-600  m-0 px-1 border-r-2 border-black ">
@@ -1274,6 +1274,7 @@ const CVFormScreen = () => {
           <p className="text-white">Chọn một mục để hiển thị chi tiết.</p>
         )}
       </div>
+
     </div>
   );
 };

@@ -10,7 +10,6 @@ import CompanyApi from "../../../api/company/company";
 import { toast } from "react-toastify";
 
 const PostDetails = () => {
-
   const [candidates, setCandidates] = useState([]);
   const [postData, setPostData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
@@ -23,6 +22,16 @@ const PostDetails = () => {
   const [viTri, setViTriOptions] = useState([""]);
   const [capDo, setCapDoOptions] = useState([""]);
 
+  const education_level = [
+    "Chứng chỉ nghề",
+    "Cao đẳng",
+    "Cử nhân",
+    "Kỹ sư",
+    "Thạc sĩ",
+    "Tiến sĩ",
+    "Phó giáo sư",
+    "Giáo sư",
+  ];
   const { idJob } = useParams();
 
   useEffect(() => {
@@ -32,10 +41,13 @@ const PostDetails = () => {
         const province = await AuthApi.getAllAuth("/all-city");
         const level = await AuthApi.getAllAuth("/all-level");
         const post = await AuthApi.getAllAuth(`/post/${idJob}`);
-     
+
         const yeuCau = post.yeuCau;
-        const listCandidate = await CompanyApi.getInfo(`all-candidate/${idJob}`);
-        setCandidates(listCandidate)
+        const listCandidate = await CompanyApi.getInfo(
+          `all-candidate/${idJob}`
+        );
+
+        setCandidates(listCandidate);
         setTinhThanhOptions(province);
         setViTriOptions(position);
         setCapDoOptions(level);
@@ -90,9 +102,19 @@ const PostDetails = () => {
   };
 
   const handleSave = async () => {
-    console.log(postData);
+    if (
+      postData.kinhnghiemUnit !== null &&
+      postData.kinhnghiemUnit == "year"
+    ) {
+      postData.kinhNghiem = parseInt(postData.kinhNghiem * 12);
+    } else {
+      postData.kinhNghiem = parseInt(postData.kinhNghiem);
+    }
+
     const data = {
       tenBaiDang: postData.tenBaiDang,
+      TrinhDo: postData.trinhDo,
+      kinhnghiem: postData.kinhNghiem,
       soLuong: postData.soLuong,
       idTinhThanh: postData.idTinhThanh,
       idViTri: postData.idViTri,
@@ -107,6 +129,8 @@ const PostDetails = () => {
     var user = JSON.parse(sessionStorage.getItem("data"));
     await CompanyApi.updateInfo(`/${user.id}/job/${idJob}/update`, data);
     setIsEditing(false);
+    const post = await AuthApi.getAllAuth(`/post/${idJob}`);
+    setPostData(post);
   };
   const handleCancel = async () => {
     setIsEditing(false);
@@ -133,7 +157,7 @@ const PostDetails = () => {
 
   return (
     <div className=" flex container shadow-lg">
-      <div className="flex w-3/4 border-r-2">
+      <div className="flex w-2/3 border-r-2">
         <div className="bg-white p-2 rounded-lg overflow-hidden w-full">
           <div className="relative">
             <img
@@ -317,9 +341,66 @@ const PostDetails = () => {
                       </span>
                     )}
                   </div>
+                  <div className="flex items-center">
+                    <strong className="pr-2 w-1/2">Trình Độ:</strong>
+                    {isEditing ? (
+                      <select
+                        id="trinhDo"
+                        name="trinhDo"
+                        value={postData.trinhDo}
+                        onChange={handleInputChange}
+                        className="border rounded p-1 w-1/2"
+                      >
+                        <option value="">Chọn Trình Độ</option>
+                        {education_level.map((level) => (
+                          <option key={level} value={level}>
+                            {level}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="w-1/2">
+                        {postData.trinhDo}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center">
+                    <strong className="pr-2 w-1/2">Kinh Nghiệm:</strong>
+                    {isEditing ? (
+                      <div className="flex w-1/2">
+                        <input
+                          type="number"
+                          id="kinhNghiem"
+                          name="kinhNghiem"
+                          value={postData.kinhNghiem}
+                          onChange={handleInputChange}
+                          className="w-3/5 px-2 py-1 border rounded"
+                          placeholder="Nhập số"
+                        />
+                        <select
+                          id="kinhnghiemUnit"
+                          name="kinhnghiemUnit"
+                          value={postData.KinhnghiemUnit}
+                          onChange={handleInputChange}
+                          className="w-2/5 px-2 py-1 border rounded ml-1"
+                        >
+                          <option value="month">Tháng</option>
+                          <option value="year">Năm</option>
+                        </select>
+                      </div>
+                    ) : (
+                      <span className="w-1/2">
+                        {postData.kinhNghiem
+                      ? postData.kinhNghiem < 12
+                        ? `${postData.kinhNghiem} tháng`
+                        : `${Math.floor(postData.kinhNghiem / 12)} năm`
+                      : "Không yêu cầu"}
+                      </span>
+                    )}
+                  </div>
 
                   <div className="flex items-center">
-                    <strong className="pr-2 w-1/2">Số lượng cần tuyển: </strong>
+                    <strong className="pr-2 w-1/2">Số lượng: </strong>
                     {isEditing ? (
                       <input
                         name="soLuong"
@@ -493,7 +574,7 @@ const PostDetails = () => {
           </div>
         </div>
       </div>
-      <div className="w-1/4">
+      <div className="w-1/3">
         <CandidateList candidates={candidates} setCandidates={setCandidates} />
       </div>
     </div>

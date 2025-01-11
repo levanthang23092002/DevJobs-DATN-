@@ -278,6 +278,8 @@ export class AuthRepository {
       tenViTri: baiDang.viTri.tenViTri,
       idCapDo: baiDang.idCapDo,
       tenCapDo: baiDang.capDo.tenCapDo,
+      kinhNghiem: baiDang.kinhnghiem,
+      trinhDo: baiDang.TrinhDo,
       soLuong: baiDang.soLuong,
       trangThai: baiDang.trangThai,
       hinhAnh: baiDang.hinhAnh || 'https://via.placeholder.com/100',

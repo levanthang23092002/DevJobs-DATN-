@@ -42,8 +42,9 @@ model NGUOIDUNG {
   luongKetThuc Float?
   trangThai    String   @default("Chờ Duyệt")
   anhDaiDien   String?
+  kinhnghiem   Int?
+  TrinhDo      String?
   xacThuc      Boolean  @default(false)
-
   loaiTaiKhoan LOAITAIKHOAN   @relation(fields: [idLoaiTK], references: [idLoaiTK])
   viTri        VITRIUNGTUYEN? @relation(fields: [idViTri], references: [idViTri])
   tinhThanh    TINHTHANH      @relation(fields: [idTinhThanh], references: [idTinhThanh])
@@ -69,10 +70,30 @@ model TINHTHANH {
   idTinhThanh  Int         @id @default(autoincrement())
   tenTinhThanh String
   trangThai    String      @default("Đã Duyệt")
-  viDo         Float @default(0)
-  kinhDo       Float @default(0)
+  viDo         Float       @default(0)
+  kinhDo       Float       @default(0)
   nguoiDung    NGUOIDUNG[]
   baiDang      BAIDANG[]
+  quanHuyen    QUANHUYEN[]
+}
+
+model QUANHUYEN {
+  idQuanHuyen  Int    @id @default(autoincrement())
+  tenQuanHuyen String
+  trangThai    String @default("Đã Duyệt")
+  idTinhThanh  Int?
+
+  TINHTHANH TINHTHANH? @relation(fields: [idTinhThanh], references: [idTinhThanh])
+  phuongXa  PHUONGXA[]
+}
+
+model PHUONGXA {
+  idPhuongXa  Int    @id @default(autoincrement())
+  tenPhuongXa String
+  trangThai   String @default("Đã Duyệt")
+  idQuanHuyen Int?
+
+  QUANHUYEN QUANHUYEN? @relation(fields: [idQuanHuyen], references: [idQuanHuyen])
 }
 
 model CapDo {
@@ -175,6 +196,8 @@ model BAIDANG {
   hinhAnh      String?
   luongBatDau  Float
   luongKetThuc Float
+  kinhnghiem   Int?
+  TrinhDo      String?
   hanChot      DateTime
   ngayDang     DateTime
   ngaySua      DateTime

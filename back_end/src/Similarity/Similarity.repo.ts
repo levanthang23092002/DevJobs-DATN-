@@ -3,7 +3,7 @@ import {
   SimilarityRequestDto,
   SalaryDto,
   LocationDto,
-} from '../dto/Similarity.dto';
+} from './dto/Similarity.dto';
 
 @Injectable()
 export class SimilarityReponsitory {
@@ -13,10 +13,12 @@ export class SimilarityReponsitory {
     job: SimilarityRequestDto,
   ): Promise<number> {
     const weights = {
-      position: 0.4,
-      location: 0.15,
-      level: 0.3,
-      salary: 0.15,
+      position: 0.3,
+      location: 0.1,
+      level: 0.2,
+      education_level: 0.15,
+      experience: 0.15,
+      salary: 0.1,
     };
 
     // Tính toán các yếu tố tương đồng
@@ -32,19 +34,26 @@ export class SimilarityReponsitory {
       user.level,
       job.level,
     );
+    const educationLevelScore = await this.calculateEducationLevelSimilarity(
+      user.education_level,
+      job.education_level,
+    );
     const salaryScore = await this.calculateSalarySimilarity(
       user.salary,
       job.salary,
     );
+    const experienceScore = await this.calculateExperienceSimilarity(
+      user.experience,
+      job.experience,
+    );
 
-    // Tính điểm tổng
     const totalScore =
       positionScore * weights.position +
       locationScore * weights.location +
       levelScore * weights.level +
-      salaryScore * weights.salary;
-
-    // Làm tròn kết quả
+      salaryScore * weights.salary +
+      educationLevelScore * weights.education_level +
+      experienceScore * weights.experience;
     const roundedScore = (totalScore * 100).toFixed(2);
 
     return Number(roundedScore);
@@ -90,6 +99,25 @@ export class SimilarityReponsitory {
     }
   }
 
+  private async calculateExperienceSimilarity(
+    userExperience: number,
+    jobExperience: number,
+  ): Promise<number> {
+    const difference = Math.abs(userExperience - jobExperience);
+
+    if (difference === 0) {
+      return 1;
+    } else if (difference <= 3) {
+      return 0.8;
+    } else if (difference <= 6) {
+      return 0.5;
+    } else if (difference <= 12) {
+      return 0.2;
+    } else {
+      return 0;
+    }
+  }
+
   private async calculateSalarySimilarity(
     userSalary: SalaryDto,
     jobSalary: SalaryDto,
@@ -128,5 +156,49 @@ export class SimilarityReponsitory {
 
   private degreesToRadians(degrees: number): number {
     return degrees * (Math.PI / 180);
+  }
+
+  private async calculateEducationLevelSimilarity(
+    education_level_user: string | null,
+    education_level_post: string | null,
+  ) {
+    const education_level = [
+      'Chứng chỉ nghề',
+      'Cao đẳng',
+      'Cử nhân',
+      'Kỹ sư',
+      'Thạc sĩ',
+      'Tiến sĩ',
+      'Phó giáo sư',
+      'Giáo sư',
+    ];
+
+    if (!education_level_post) {
+      return 1;
+    }
+    if (!education_level_user) {
+      return 0;
+    }
+
+    const educationLevelUser =
+      education_level.indexOf(education_level_user) + 1;
+    const educationLevelPost =
+      education_level.indexOf(education_level_post) + 1;
+
+    if (educationLevelUser === 0) return 0;
+    if (educationLevelPost === 0) return 1;
+
+    const chenhlech = Math.abs(educationLevelUser - educationLevelPost);
+    if (chenhlech > 3) {
+      return 0;
+    } else if (chenhlech === 3) {
+      return 0.3;
+    } else if (chenhlech === 2) {
+      return 0.5;
+    } else if (chenhlech === 1) {
+      return 0.8;
+    } else if (chenhlech === 0) {
+      return 1;
+    }
   }
 }

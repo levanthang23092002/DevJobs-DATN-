@@ -66,6 +66,14 @@ export class CandidateRegisterDto {
   @IsString()
   @IsOptional()
   anhDaiDien?: string;
+
+  @IsNumber()
+  @IsOptional()
+  kinhnghiem?: number;
+
+  @IsString()
+  @IsOptional()
+  TrinhDo?: string;
 }
 
 export class CandidateLoginDto {
