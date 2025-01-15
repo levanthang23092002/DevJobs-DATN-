@@ -21,7 +21,7 @@ const PostJobForm = () => {
     TrinhDo: "",
   });
 
-  const [yeuCauList, setYeuCauList] = useState([""]);
+  const [yeuCauList, setYeuCauList] = useState([]);
   const [tinhThanhOptions, setTinhThanhOptions] = useState([""]);
   const [viTriOptions, setViTriOptions] = useState([""]);
   const [capDoOptions, setCapDoOptions] = useState([""]);
@@ -86,6 +86,10 @@ const PostJobForm = () => {
       toast.error("Hạn chót phải sau ngày hôm nay!");
       return;
     }
+    if(parseFloat(formData.luongBatDau) > parseFloat(formData.luongKetThuc)){
+      toast.error("Lương bắt đầu phải nhỏ hơn lương kết thúc");
+      return;
+    }
     var user = JSON.parse(sessionStorage.getItem("data"));
 
     if (formData.hinhAnh !== null && formData.hinhAnh !== "") {
@@ -119,7 +123,7 @@ const PostJobForm = () => {
       kinhnghiem: "",
       TrinhDo: "",
     })
-    setYeuCauList("")
+    setYeuCauList([])
   };
 
   return (
@@ -328,7 +332,7 @@ const PostJobForm = () => {
           </div>
 
           <div>
-            <label className=" font-bold">Yêu Cầu</label>
+            <label className=" font-bold flex flex-col">Yêu Cầu</label>
             {yeuCauList.map((yeuCau, index) => (
               <div key={index} className="flex space-x-2 mb-2">
                 <input

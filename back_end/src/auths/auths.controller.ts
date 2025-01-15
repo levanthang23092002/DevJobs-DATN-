@@ -89,4 +89,8 @@ export class AuthsController {
   async loginAdmin(@Body() dto: CandidateLoginDto) {
     return await this.service.loginAdmin(dto);
   }
+  @Get('/:idBD/count')
+  async getCountCandidateApply(@Param('idBD') idBD) {
+    return await this.service.getCountCandidateApply(idBD);
+  }
 }

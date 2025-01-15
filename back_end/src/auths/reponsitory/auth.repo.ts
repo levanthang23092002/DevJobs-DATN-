@@ -298,4 +298,17 @@ export class AuthRepository {
       })),
     };
   }
+  async countCandidate(idBD) {
+    try {
+      const count = await this.prisma.dANHSACH_UV.count({
+        where: { idBaiDang: idBD },
+      });
+      if (count > 0) return count;
+      else return 0;
+    } catch (error) {
+      // Handle the error gracefully (e.g., logging or returning a custom message)
+      console.error(error);
+      throw new Error('Failed to count candidates');
+    }
+  }
 }

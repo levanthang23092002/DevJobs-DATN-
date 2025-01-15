@@ -32,7 +32,6 @@ class AuthApi {
   async getAllAuth(urlApi) {
     try {
       const response = await this.apiClient.get(urlApi);
-
       return response.data;
     } catch (error) {
       if (error.response) {

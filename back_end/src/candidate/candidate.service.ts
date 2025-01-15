@@ -184,6 +184,7 @@ export class CandidateService {
         jobId: idBD.toString(),
         cvUrl: `http://localhost:3000/view/CV/${candidate.idNguoiDung}`,
       });
+      await this.repoGateway.sendApply(apply);
       return {
         message: 'Bạn Đã Gửi CV Thành Công',
         status: 200,

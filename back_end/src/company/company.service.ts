@@ -213,7 +213,7 @@ export class CompanyService {
         throw new BadRequestException('Thêm yêu cầu thất bại');
       }
       return {
-        message: 'Thêm yêu thành công',
+        message: 'Thêm yêu cầu thành công',
         status: 200,
         data: add,
       };

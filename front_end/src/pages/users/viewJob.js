@@ -11,6 +11,7 @@ const socket = io("http://localhost:5000");
 
 function ViewJob() {
   const [job, setJob] = useState({});
+  const [countAplly, setCountAplly] = useState(0)
   const [jobList, setJobList] = useState([]);
   var user = JSON.parse(sessionStorage.getItem("data")) || {
     quyen: null,
@@ -19,23 +20,27 @@ function ViewJob() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Gọi API để lấy dữ liệu công việc hiện tại
+        
         const job = await AuthApi.getAllAuth(`/post/${idJob}`);
         setJob(job);
-
-        // Gọi API để lấy danh sách công việc
         const jobList = await AuthApi.getAllAuth("/post-many");
         setJobList(jobList);
+        const count = await AuthApi.getAllAuth(`/${idJob}/count`);
+        setCountAplly(count.data);
 
         // Lắng nghe sự kiện socket
         const handleUpdatePost = async (post) => {
           if (post.idBaiDang === parseInt(idJob)) {
             const updatedJob = await AuthApi.getAllAuth(`/post/${idJob}`);
             setJob(updatedJob);
+            const count = await AuthApi.getAllAuth(`/${idJob}/count`); 
+            setCountAplly(count.data);
           }
         };
+       
 
         socket.on("update_post_company", handleUpdatePost);
+        socket.on("new_apply", handleUpdatePost);
 
         // Hủy đăng ký socket khi component unmount hoặc khi `idJob` thay đổi
         return () => {
@@ -96,7 +101,12 @@ function ViewJob() {
                 <p className="px-2 py-1 text-xs font-medium inline-block rounded-full bg-color-item text-white">
                   {job.tenTinhThanh}
                 </p>
+
+                <p className="px-2 py-1 text-xs font-medium ">
+                  {countAplly <=0 ?(`chưa có người Nộp`):(`số người đã nộp: ${countAplly}`)}
+                </p> 
               </div>
+             
             </div>
 
             <div className="flex items-center m-0 justify-between ">

@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import CandidateApi from "../../../api/user/candidate";
 
 import io from "socket.io-client";
-
 const socket = io("http://localhost:5000");
 
 

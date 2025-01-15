@@ -345,6 +345,21 @@ export class AuthsService {
       throw new BadRequestException(error.message);
     }
   }
+  async getCountCandidateApply(idBD) {
+    try {
+      const count = await this.repoAuth.countCandidate(parseInt(idBD));
+      if (!count) {
+        throw new BadRequestException('Không thể tìm thấy list ứng viên');
+      }
+      return {
+        message: 'lấy số lượng ứng viên thành công',
+        status: 200,
+        data: count,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
   // Admin
   async loginAdmin(data: CandidateLoginDto) {
     const { email, matKhau } = data;

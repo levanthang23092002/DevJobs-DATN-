@@ -8,6 +8,8 @@ import uploadImage from "../../../assets/Js/UploadImage";
 import AuthApi from "../../../api/auth/auth";
 import CompanyApi from "../../../api/company/company";
 import { toast } from "react-toastify";
+import io from "socket.io-client";
+const socket = io("http://localhost:5000");
 
 const PostDetails = () => {
   const [candidates, setCandidates] = useState([]);
@@ -53,6 +55,15 @@ const PostDetails = () => {
         setCapDoOptions(level);
         setPostData(post);
         setYeuCau(yeuCau);
+
+        const newApplay = async (post) => {
+          const listCandidate = await CompanyApi.getInfo(
+            `all-candidate/${idJob}`
+          );
+          setCandidates(listCandidate);
+        };
+
+        socket.on("new_apply", newApplay);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -102,10 +113,7 @@ const PostDetails = () => {
   };
 
   const handleSave = async () => {
-    if (
-      postData.kinhnghiemUnit !== null &&
-      postData.kinhnghiemUnit == "year"
-    ) {
+    if (postData.kinhnghiemUnit !== null && postData.kinhnghiemUnit == "year") {
       postData.kinhNghiem = parseInt(postData.kinhNghiem * 12);
     } else {
       postData.kinhNghiem = parseInt(postData.kinhNghiem);
@@ -359,9 +367,7 @@ const PostDetails = () => {
                         ))}
                       </select>
                     ) : (
-                      <span className="w-1/2">
-                        {postData.trinhDo}
-                      </span>
+                      <span className="w-1/2">{postData.trinhDo}</span>
                     )}
                   </div>
                   <div className="flex items-center">
@@ -391,10 +397,10 @@ const PostDetails = () => {
                     ) : (
                       <span className="w-1/2">
                         {postData.kinhNghiem
-                      ? postData.kinhNghiem < 12
-                        ? `${postData.kinhNghiem} tháng`
-                        : `${Math.floor(postData.kinhNghiem / 12)} năm`
-                      : "Không yêu cầu"}
+                          ? postData.kinhNghiem < 12
+                            ? `${postData.kinhNghiem} tháng`
+                            : `${Math.floor(postData.kinhNghiem / 12)} năm`
+                          : "Không yêu cầu"}
                       </span>
                     )}
                   </div>

@@ -33,4 +33,8 @@ export class CandidateGateway
   sendNewNotificationCompany(newNotification: any) {
     this.server.emit('new_notifycation_company', newNotification);
   }
+
+  sendApply(job: any) {
+    this.server.emit('new_apply', job);
+  }
 }

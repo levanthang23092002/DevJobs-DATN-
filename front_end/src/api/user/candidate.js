@@ -15,10 +15,8 @@ class CandidateApi {
       toast.error("Bạn Cần Đăng Nhập vào Hệ Thống.");
       return {};
     }
-    return { Authorization: token }; 
+    return { Authorization: token };
   }
-
- 
 
   async updateInfo(urlApi, data) {
     try {
@@ -61,9 +59,9 @@ class CandidateApi {
   async getInfo(urlApi) {
     try {
       const response = await this.apiClient.get(urlApi, {
-        headers: this.getAuthHeaders(), 
+        headers: this.getAuthHeaders(),
       });
-      
+
       return response.data.data;
     } catch (error) {
       if (error.response) {
@@ -79,9 +77,9 @@ class CandidateApi {
   async deleteInfo(urlApi) {
     try {
       const response = await this.apiClient.delete(urlApi, {
-        headers: this.getAuthHeaders(), 
+        headers: this.getAuthHeaders(),
       });
-      
+
       return response.data;
     } catch (error) {
       if (error.response) {
@@ -95,4 +93,4 @@ class CandidateApi {
   }
 }
 
-export default new CandidateApi ();
+export default new CandidateApi();
